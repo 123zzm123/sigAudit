@@ -2,6 +2,8 @@
 
 Reference-adjusted gain accounting for multi-algorithm search in omics prognostic modelling.
 
+Repository: <https://github.com/123zzm123/sigAudit>
+
 Multi-algorithm pipelines fit many learners, keep the one with the best validation
 performance, and report that number. `sigAudit` separates the two things that number mixes:
 the gain that survives on held-out data, and the gain that depends on the comparator.
@@ -24,7 +26,7 @@ common task set; `audit_selection()` performs the paired accounting for a single
 
 ```r
 # install.packages("remotes")
-remotes::install_github("<your-account>/sigAudit")
+remotes::install_github("123zzm123/sigAudit")
 ```
 
 ## Quick start

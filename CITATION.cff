@@ -4,6 +4,7 @@ title: "sigAudit"
 version: 0.1.0
 date-released: 2026-10-18
 license: MIT
+repository-code: "https://github.com/123zzm123/sigAudit"
 authors:
   - family-names: "Zhao"
     given-names: "Ziming"
