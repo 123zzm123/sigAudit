@@ -1,0 +1,26 @@
+Package: sigAudit
+Type: Package
+Title: Gain Accounting for Multi-Algorithm Search in Omics Prognostics
+Version: 0.1.0
+Authors@R: person("Ziming", "Zhao", email = "13317834871@163.com",
+    role = c("aut", "cre"))
+Description: Implements reference-adjusted gain accounting for omics prognostic
+    modelling. For a candidate pool evaluated on validation and held-out test
+    partitions, it computes `Gv` (validation gain over a fixed reference), `Gt`
+    (held-out gain) and `Orel = Gv - Gt` (reference-adjusted selection optimism),
+    and compares selection rules (argmax, top-k ensembles, resampling remedies)
+    on a common task set. It separates selection on a noisy criterion from
+    comparison against a weak baseline, and keeps `Oraw` distinct from `Orel`.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Depends: R (>= 4.1.0)
+Imports:
+    survival,
+    glmnet,
+    stats
+Suggests:
+    randomForestSRC,
+    gbm,
+    jsonlite,
+    testthat (>= 3.0.0)
+Config/roxygen2/version: 8.1.0

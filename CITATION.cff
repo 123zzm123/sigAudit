@@ -1,0 +1,15 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the accompanying article."
+title: "sigAudit"
+version: 0.1.0
+date-released: 2026-10-18
+license: MIT
+authors:
+  - family-names: "Zhao"
+    given-names: "Ziming"
+    affiliation: "College of Chemistry, Fuzhou University, Fuzhou, Fujian, China"
+    email: "13317834871@163.com"
+abstract: >-
+  Reference-adjusted gain accounting for multi-algorithm search in omics prognostic
+  modelling. Computes validation gain, held-out gain and reference-adjusted selection
+  optimism, and compares selection rules on a common task set.

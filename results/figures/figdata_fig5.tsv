@@ -1,0 +1,10 @@
+panel	x	TCGA	METABRIC	note
+A	Lasso	0.0373547528665672	0.00838075053825436	Orel under each reference (argmax)
+A	Ridge	0.0377484155974581	0.00770401038537164	Orel under each reference (argmax)
+A	Enet0.5	0.0378361801684511	0.0081737344759787	Orel under each reference (argmax)
+B	EndoPredict_11	NA	0.0027696583091358	per-signature Orel
+B	GENE76_Rotterdam	NA	0.0030461587775312	per-signature Orel
+B	GGI	NA	0.00533210130647621	per-signature Orel
+B	OncotypeDX_21	NA	0.0095876961158248	per-signature Orel
+B	GENE70_MammaPrint	NA	0.0125425248448786	per-signature Orel
+B	PAM50	NA	0.0170063638756795	per-signature Orel

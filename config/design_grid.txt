@@ -1,0 +1,5 @@
+# 正式主实验的（队列 × 划分种子）注册网格
+# 队列（8）按样本量从小到大
+MESO PAAD STAD KIRC LUAD COAD LGG BRCA
+# 划分种子（5），见 config/preregistration.md
+20261014 20261016 20261017 20261018 20261019

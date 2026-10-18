@@ -1,0 +1,17 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+*.Rcheck/
+*.tar.gz
+data/cohorts/
+data/signatures/
+logs/
+results/main/
+results/main_v1_firstattempt/
+results/metabric/*.rds
+results/remedies/
+submission*/
+submission_cmpb*/
+.DS_Store
+Thumbs.db
