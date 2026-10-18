@@ -25,7 +25,7 @@ import requests
 
 B = "https://www.cbioportal.org/api"
 OUT = "D:/bioinfo/sigAudit/data/cohorts"
-GS = "D:/bioinfo/BRCA_TLS/data/genesets"
+GS = os.environ.get("MSIGDB_DIR", os.path.join(os.environ.get("SIGAUDIT_ROOT", "."), "data", "genesets"))
 FILES = ["h.all.v2024.1.Hs.symbols.gmt",
          "c2.cp.kegg_medicus.v2024.1.Hs.symbols.gmt",
          "c2.cp.reactome.v2024.1.Hs.symbols.gmt",

@@ -34,17 +34,29 @@ remotes::install_github("123zzm123/sigAudit")
 ```r
 library(sigAudit)
 
-# val_ci, test_ci: matrices of C-index, rows = tasks, columns = candidates
-res <- audit_rules(val_ci, test_ci, reference = "Lasso")
-res$rules        # per-rule Gv, Gt, Orel, Oraw
-res$members      # ensemble membership
+d  <- read.csv(system.file("extdata", "example_ci.csv", package = "sigAudit"))
+V  <- xtabs(val_ci  ~ geneset + model, data = d)   # rows = tasks, columns = candidates
+Tt <- xtabs(test_ci ~ geneset + model, data = d)
+
+res <- audit_rules(V, Tt, reference = "Lasso")
+res$table   # rule, n, reported, test, Gv, Gt, Orel, Oraw
 ```
+
+`audit_rules()` covers the selection-type rules (no selection, validation argmax, runner-up,
+non-reference argmax). Top-k ensembles and the resampling remedies need per-candidate risk
+scores rather than C-index matrices, and are implemented in the accompanying analysis scripts
+under `scripts/`.
 
 The package ships assertion-based tests covering column-order invariance of tie-breaking,
 row-identity checking, rejection of out-of-range C-indices, and the identity between the
 comparable-pair count and `concordant + discordant + tied.x`.
 
 ## Reproducing the study
+
+**Prerequisites.** `tables` and `metabric` need inputs that are not in this repository:
+`results/main/19_*_100.rds` (saved per-patient predictions, produced by `train`) and
+`data/cohorts/` (expression and survival tables, see `data/README.md`). Without them the code
+and the released result tables are available, but the tables cannot be rebuilt from scratch.
 
 ```bash
 bash reproduce_current.sh tables      # rebuild TCGA tables from saved predictions

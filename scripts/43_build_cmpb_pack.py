@@ -74,7 +74,7 @@ for m in re.finditer(r"\[([0-9,\u2013\- ]+)\]", body):
         for n in rng:
             if n not in seen:
                 seen.append(n)
-if seen != list(range(1, 18)):
+if seen != list(range(1, 19)):
     errs.append(f"引用首次出现顺序不是 1–17：{seen}")
 
 # 声明齐全
@@ -170,8 +170,8 @@ is a property of the comparator rather than the data.
 across eight TCGA cohorts, five stratified splits per cohort, 100 MSigDB gene sets and 18
 learner configurations, and repeated the workflow in an independent microarray cohort (METABRIC,
 1,977 patients) with six published signatures. The gain accounting and rule comparison are
-implemented as a documented R package with assertion-based tests, so the procedure can be reused
-on other omics endpoints.
+implemented as a documented R package and accompanying scripts with assertion-based tests, so
+the procedure can be reused on other omics endpoints.
 
 **What we found.** The validation gain replicated only in part (reference-adjusted optimism
 0.0374). The widely quoted relative unmet fraction was reference-dependent (61% against a fixed

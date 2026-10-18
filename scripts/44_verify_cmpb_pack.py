@@ -72,9 +72,9 @@ for m in re.finditer(r"\[([0-9,\u2013\- ]+)\]", body):
         for n in rng:
             if n not in seen:
                 seen.append(n)
-chk("首次出现顺序为 1–17", seen == list(range(1, 18)), str(seen))
+chk("首次出现顺序为 1–17", seen == list(range(1, 19)), str(seen))
 n_ref = len(re.findall(r"^\d+\.\s", short[short.index("## References"):], re.M))
-chk("文末 17 条文献", n_ref == 17, str(n_ref))
+chk("文末 18 条文献", n_ref == 18, str(n_ref))
 
 print("=== 5. 数字未失真（对照长稿） ===")
 def dec(t):
@@ -82,7 +82,7 @@ def dec(t):
     t = re.sub(r"\bS\d+(?:\.\d+)?\b", " ", t)
     t = re.sub(r"^#.*$", "", t, flags=re.M)
     return collections.Counter(re.findall(r"\d+\.\d+", t))
-extra = set(dec(short)) - set(dec(gen))
+extra = set(dec(body)) - set(dec(gen))
 chk("短稿未引入长稿中不存在的数值", not extra, str(sorted(extra)))
 key = ["0.0610", "0.0237", "0.0374", "0.0377", "0.0378", "0.0064", "0.0016",
        "0.0048", "0.0084", "0.0002", "0.0039", "3,798", "3,919", "66,483",

@@ -61,12 +61,14 @@ def new_doc(double=True):
     return doc
 
 def para(doc, text="", align="justify", size=12, bold=False, italic=False,
-         space_after=0, hang=False):
+         space_after=0, hang=False, keep=False):
     p = doc.add_paragraph()
     p.alignment = {"justify": WD_ALIGN_PARAGRAPH.JUSTIFY,
                    "left": WD_ALIGN_PARAGRAPH.LEFT,
                    "center": WD_ALIGN_PARAGRAPH.CENTER}[align]
     p.paragraph_format.space_after = Pt(space_after)
+    if keep:
+        p.paragraph_format.keep_with_next = True
     if hang:
         p.paragraph_format.left_indent = Cm(0.75)
         p.paragraph_format.first_line_indent = Cm(-0.75)
@@ -82,7 +84,7 @@ def split_row(line):
 def is_sep(line):
     return bool(re.fullmatch(r"\|?[\s:\-|]+\|?", line.strip())) and "-" in line
 
-def add_table(doc, rows):
+def add_table(doc, rows, tbl_no=0):
     ncol = max(len(r) for r in rows)
     t = doc.add_table(rows=0, cols=ncol)
     t.style = "Table Grid"
@@ -93,6 +95,12 @@ def add_table(doc, rows):
             p.paragraph_format.line_spacing = 1.0
             p.paragraph_format.space_after = Pt(2)
             add_inline(p, row[j] if j < len(row) else "", size=9, bold=(i == 0))
+    # Table 1 的 study ID 列需要更宽，避免长标识符折行
+    if tbl_no == 1 and ncol == 5:
+        widths = [Cm(3.2), Cm(6.2), Cm(2.2), Cm(1.9), Cm(1.6)]
+        for row in t.rows:
+            for j, w in enumerate(widths):
+                row.cells[j].width = w
 
 # ---------- 标题页 ----------
 tp_md = io.open(TITLE_PAGE, encoding="utf-8").read().splitlines()
@@ -132,12 +140,12 @@ while i < len(md):
         h = s[3:].strip()
         if h.startswith("References"):
             in_refs = True
-        para(doc, h, align="left", size=12, bold=True, space_after=6)
+        para(doc, h, align="left", size=12, bold=True, space_after=6, keep=True)
         i += 1
         continue
 
     if s.startswith("### "):
-        para(doc, s[4:].strip(), align="left", size=12, bold=True, space_after=4)
+        para(doc, s[4:].strip(), align="left", size=12, bold=True, space_after=4, keep=True)
         i += 1
         continue
 
@@ -147,7 +155,7 @@ while i < len(md):
             if not is_sep(md[i]):
                 rows.append(split_row(md[i]))
             i += 1
-        add_table(doc, rows)
+        add_table(doc, rows, tbl_no=n_tab + 1)
         n_tab += 1
         para(doc, "", space_after=0)
         continue
@@ -164,6 +172,7 @@ while i < len(md):
             i += 1
         para(doc, " ".join(buf), align="left", size=10,
              space_after=4, hang=True)
+        doc.paragraphs[-1].paragraph_format.line_spacing = 2.0
         continue
 
     # 普通段落

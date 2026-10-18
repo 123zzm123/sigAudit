@@ -17,8 +17,17 @@ EMAIL  = "13317834871@163.com"
 AFFIL  = "College of Chemistry, Fuzhou University, Fuzhou, Fujian, China"
 
 if os.path.exists(OUT):
-    shutil.rmtree(OUT)
-os.makedirs(OUT)
+    # 保留 .git，只清理内容，避免丢失提交历史与只读对象删除失败
+    for name in os.listdir(OUT):
+        if name == ".git":
+            continue
+        p = os.path.join(OUT, name)
+        if os.path.isdir(p):
+            shutil.rmtree(p)
+        else:
+            os.remove(p)
+else:
+    os.makedirs(OUT)
 
 def cp(src, dst=None):
     src = os.path.join(ROOT, src)
@@ -37,6 +46,17 @@ cp("third_party/genefu/README.md", "third_party/genefu/README.md")
 # ---------- 分析脚本与配置 ----------
 cp("scripts")
 cp("config")
+# 删除已退役的旧实验脚本（README 只承诺当前管线）
+OBSOLETE = ["01_pilot_experiment.R", "03_analyse_results.R", "05_experiment_v2.R",
+            "07_experiment_v4.R", "08_experiment_v5.R", "09_model_level.R",
+            "10_analysis.R", "11_predictors.R", "12_rules.R", "14_robustness.R",
+            "15_summary.R", "16_remedy_data.R", "17_remedies.R",
+            "18_robustness_full.R", "_13_figures_v1_superseded.R", "_v5_full_curve.R",
+            "_20_v1_backup.R", "_21_v1_backup.R"]
+for f in OBSOLETE:
+    fp = os.path.join(OUT, "scripts", f)
+    if os.path.exists(fp):
+        os.remove(fp)
 cp("reproduce_current.sh")
 cp("run_v8_parallel.sh")
 cp("README_current.md")
@@ -159,23 +179,48 @@ Thumbs.db
 # ---------- data 说明 ----------
 os.makedirs(os.path.join(OUT, "data"), exist_ok=True)
 io.open(os.path.join(OUT, "data", "README.md"), "w", encoding="utf-8", newline="\n").write(
-f"""# Data
+"""# Data
 
-The raw expression matrices and survival tables are **not redistributed** here.
-TCGA Pan-Cancer Atlas 2018 and METABRIC data are available from cBioPortal:
+Raw expression matrices and survival tables are **not redistributed** in this repository.
 
-- TCGA: `https://www.cbioportal.org/api` — eight study identifiers are listed in Table 1 of
-  the manuscript (`brca_tcga_pan_can_atlas_2018`, `coadread_...`, `kirc_...`, `lgg_...`,
-  `luad_...`, `meso_...`, `paad_...`, `stad_...`), profile `*_rna_seq_v2_mrna`.
-- METABRIC: study `brca_metabric`, profile `brca_metabric_mrna`.
+## TCGA
 
-Gene sets: MSigDB v2024.1 (`https://www.gsea-msigdb.org/`), six collections listed in
-Supplementary Methods S1.
+cBioPortal study identifiers (all suffix `_tcga_pan_can_atlas_2018`):
 
-Signature gene lists were read from `genefu` 2.44.0 (Bioconductor) and are not redistributed;
-`third_party/genefu/README.md` records the objects used and their MD5 checksums.
+`brca_tcga_pan_can_atlas_2018`, `coadread_tcga_pan_can_atlas_2018`,
+`kirc_tcga_pan_can_atlas_2018`, `lgg_tcga_pan_can_atlas_2018`,
+`luad_tcga_pan_can_atlas_2018`, `meso_tcga_pan_can_atlas_2018`,
+`paad_tcga_pan_can_atlas_2018`, `stad_tcga_pan_can_atlas_2018`
 
-After download, place files under `data/cohorts/` as described in `reproduce_current.sh`.
+- Molecular profile: `{study}_rna_seq_v2_mrna`
+- Sample list: `{study}_all`
+- API: `https://www.cbioportal.org/api`
+
+## METABRIC
+
+- Study identifier: `brca_metabric`
+- Molecular profile: `brca_metabric_mrna`
+- Same API.
+
+## Gene sets
+
+MSigDB v2024.1, six collections: `h.all`, `c2.cp`, `c2.cp.kegg_medicus`,
+`c2.cp.reactome`, `c5.go.bp`, `c7.immunesigdb`
+(`*.v2024.1.Hs.symbols.gmt`, downloaded from `https://www.gsea-msigdb.org/`).
+
+## Signature gene lists
+
+`genefu` 2.44.0 (Bioconductor). The six objects used and their MD5 checksums are recorded in
+`third_party/genefu/README.md`; the objects themselves are not redistributed.
+
+## Where each artefact lives
+
+| Artefact | Location |
+|---|---|
+| Raw expression and survival tables | fetched by the user into `data/cohorts/` |
+| Per-patient predictions | produced by `reproduce_current.sh train`; not in this repository |
+| Derived result tables | `results/tables/`, `results/manifest/` |
+| Analysis code | `scripts/` |
 """)
 
 # ---------- results 说明 ----------
@@ -203,6 +248,8 @@ f"""# sigAudit
 
 Reference-adjusted gain accounting for multi-algorithm search in omics prognostic modelling.
 
+Repository: <https://github.com/123zzm123/sigAudit>
+
 Multi-algorithm pipelines fit many learners, keep the one with the best validation
 performance, and report that number. `sigAudit` separates the two things that number mixes:
 the gain that survives on held-out data, and the gain that depends on the comparator.
@@ -225,7 +272,7 @@ common task set; `audit_selection()` performs the paired accounting for a single
 
 ```r
 # install.packages("remotes")
-remotes::install_github("<your-account>/sigAudit")
+remotes::install_github("123zzm123/sigAudit")
 ```
 
 ## Quick start
@@ -233,17 +280,29 @@ remotes::install_github("<your-account>/sigAudit")
 ```r
 library(sigAudit)
 
-# val_ci, test_ci: matrices of C-index, rows = tasks, columns = candidates
-res <- audit_rules(val_ci, test_ci, reference = "Lasso")
-res$rules        # per-rule Gv, Gt, Orel, Oraw
-res$members      # ensemble membership
+d  <- read.csv(system.file("extdata", "example_ci.csv", package = "sigAudit"))
+V  <- xtabs(val_ci  ~ geneset + model, data = d)   # rows = tasks, columns = candidates
+Tt <- xtabs(test_ci ~ geneset + model, data = d)
+
+res <- audit_rules(V, Tt, reference = "Lasso")
+res$table   # rule, n, reported, test, Gv, Gt, Orel, Oraw
 ```
+
+`audit_rules()` covers the selection-type rules (no selection, validation argmax, runner-up,
+non-reference argmax). Top-k ensembles and the resampling remedies need per-candidate risk
+scores rather than C-index matrices, and are implemented in the accompanying analysis scripts
+under `scripts/`.
 
 The package ships assertion-based tests covering column-order invariance of tie-breaking,
 row-identity checking, rejection of out-of-range C-indices, and the identity between the
 comparable-pair count and `concordant + discordant + tied.x`.
 
 ## Reproducing the study
+
+**Prerequisites.** `tables` and `metabric` need inputs that are not in this repository:
+`results/main/19_*_100.rds` (saved per-patient predictions, produced by `train`) and
+`data/cohorts/` (expression and survival tables, see `data/README.md`). Without them the code
+and the released result tables are available, but the tables cannot be rebuilt from scratch.
 
 ```bash
 bash reproduce_current.sh tables      # rebuild TCGA tables from saved predictions
@@ -312,6 +371,7 @@ for root, dirs, fs in os.walk(OUT):
 
 with zipfile.ZipFile(ZIP, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as z:
     for root, dirs, fs in os.walk(OUT):
+        dirs[:] = [d for d in dirs if d != ".git"]
         for f in fs:
             p = os.path.join(root, f)
             z.write(p, os.path.relpath(p, OUT))

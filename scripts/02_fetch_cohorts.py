@@ -14,7 +14,7 @@ import os, time, json
 import requests, pandas as pd, numpy as np
 
 B = "https://www.cbioportal.org/api"
-OUT = "D:/bioinfo/sigAudit/data/cohorts"
+OUT = os.path.join(os.environ.get("SIGAUDIT_ROOT", "."), "data", "cohorts")
 os.makedirs(OUT, exist_ok=True)
 
 # 覆盖不同信号强度的癌种
@@ -44,7 +44,7 @@ def log(*a): print(time.strftime("%H:%M:%S"), *a, flush=True)
 
 # 基因表：必须用与 LGG 一致的【四个 GMT 的并集】(~17k)，
 # 而不是 hallmark-only (~4.4k)，否则跨队列基因覆盖不一致、不可比。
-GS = "D:/bioinfo/BRCA_TLS/data/genesets"
+GS = os.environ.get("MSIGDB_DIR", os.path.join(os.environ.get("SIGAUDIT_ROOT", "."), "data", "genesets"))
 _files = ["h.all.v2024.1.Hs.symbols.gmt",
           "c2.cp.kegg_medicus.v2024.1.Hs.symbols.gmt",
           "c2.cp.reactome.v2024.1.Hs.symbols.gmt",

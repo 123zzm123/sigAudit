@@ -32,8 +32,8 @@ import json
 import os
 import sys
 
-GS_DIR = "D:/bioinfo/BRCA_TLS/data/genesets"
-OUT = "D:/bioinfo/sigAudit/data/signatures/msigdb_genesets.json"
+GS_DIR = os.environ.get("MSIGDB_DIR", os.path.join(os.environ.get("SIGAUDIT_ROOT", "."), "data", "genesets"))
+OUT = os.path.join(os.environ.get("SIGAUDIT_ROOT", "."), "data", "signatures", "msigdb_genesets.json")
 
 SOURCES = [
     "h.all.v2024.1.Hs.symbols.gmt",
