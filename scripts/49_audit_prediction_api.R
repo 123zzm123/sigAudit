@@ -58,7 +58,6 @@ build_tasks <- function(R) {
 ## 单次遍历：每个 RDS 只读一次，A/B/C 复用
 ## ============================================================
 API <- list(); DIAG <- list(); SW <- list(); DD <- list()
-EXP <- 0L   # 预期 API 规则记录数：每个任务对每个被请求规则恰出一行
 for (f in mani) {
   R <- tryCatch(readRDS(f), error=function(e) NULL)
   if (is.null(R) || !length(R$genesets)) next
@@ -66,7 +65,6 @@ for (f in mani) {
   fam <- stats::setNames(ifelse(bt$keep %in% TREES, "tree", "linear"), bt$keep)
   ## A. 参照 Lasso：全队列跑确定性规则，MESO 额外跑全部规则（含重采样）
   rls <- if (identical(R$cohort, "MESO")) CORE else CORE_DET
-  EXP <- EXP + length(bt$tasks) * length(rls)
   a <- audit_predictions(bt$tasks, reference="Lasso", rules=rls, family=fam, seed=R$seed)
   r <- a$rules; r$task <- paste(r$cohort,r$split,r$task,sep="|"); API[[length(API)+1]] <- r
   d <- a$diagnostics; d$task <- paste(d$cohort,d$split,d$task,sep="|"); DIAG[[length(DIAG)+1]] <- d
@@ -96,6 +94,20 @@ say("说明：本核对覆盖 3,919 个共同可评估任务上的确定性规�
 ## ============================================================
 RP <- rd(file.path(TAB,"20_rule_performance_long.tsv")); RP$task <- paste(RP$cohort,RP$seed,RP$geneset,sep="|")
 RM <- rd(file.path(TAB,"20_rule_members_long.tsv")); RM$task <- paste(RM$cohort,RM$seed,RM$geneset,sep="|")
+## ---- 预期覆盖键：直接从【冻结的】20_rule_performance_long.tsv 构造，不依赖本轮读入的 RDS ----
+## 这样即使某个 RDS 文件整体缺失（actual 侧一起变少），预期数仍保持不变，能报出缺口。
+## 共同可评估任务 = none 与 argmax_val 的 Cv/Ct 均有限；规则范围按队列声明
+## （全部队列跑确定性规则，MESO 额外跑三条重采样规则）。
+Wp <- reshape(RP[, c("task","cohort","rule","cv","ct")], idvar=c("task","cohort"),
+              timevar="rule", direction="wide")
+ok_task <- is.finite(Wp$cv.none) & is.finite(Wp$ct.none) &
+           is.finite(Wp$cv.argmax_val) & is.finite(Wp$ct.argmax_val)
+Wt <- Wp[ok_task, c("task","cohort"), drop=FALSE]
+EXPECT <- do.call(rbind, lapply(seq_len(nrow(Wt)), function(i) {
+  rls <- if (identical(Wt$cohort[i], "MESO")) CORE else CORE_DET
+  data.frame(task=Wt$task[i], rule=rls, stringsAsFactors=FALSE)
+}))
+EXP <- nrow(EXPECT)
 M <- merge(RP[,c("task","rule","cv","ct","Gv","Gt","Orel")], A[,c("task","rule","Cv","Ct","Gv","Gt","Orel")],
            by=c("task","rule"), suffixes=c(".pipe",".api"))
 M <- M[is.finite(M$cv) & is.finite(M$Cv), ]
@@ -107,21 +119,25 @@ MM <- merge(RM[RM$rule %in% c("argmax_val","top5_ensemble"), c("task","rule","wi
             by=c("task","rule"), suffixes=c(".pipe",".api"))
 win_same <- mean(MM$winner.pipe == MM$winner.api, na.rm=TRUE)
 mem_same <- mean(MM$members.pipe == MM$members.api, na.rm=TRUE)
-## ---- 真实断言：键唯一性、预期覆盖数、缺失记录差集 ----
+## ---- 真实断言：键唯一性、双向覆盖（预期缺 API / API 多出预期）----
 keyA <- paste(A$task, A$rule, sep="@@")
 keyP <- paste(RP$task, RP$rule, sep="@@")
+keyE <- paste(EXPECT$task, EXPECT$rule, sep="@@")
 dup_keys <- sum(duplicated(keyA))
-missing_keys <- length(setdiff(keyA, keyP))
+missing_records <- length(setdiff(keyE, keyA))   # 预期有、API 没有
+extra_records   <- length(setdiff(keyA, keyE))   # API 有、预期没有
 say(sprintf("A. 与主分析 20 的逐任务比较（%d 条匹配记录）", nrow(M)))
 say(sprintf("   最大绝对差：Cv=%.2e  Ct=%.2e  Gv=%.2e  Gt=%.2e  Orel=%.2e", dCv, dCt, dGv, dGt, dOr))
 say(sprintf("   argmax_val/top5_ensemble 获胜者一致率 %.4f，成员一致率 %.4f", win_same, mem_same))
-say(sprintf("   记录数：实际 %d，预期 %d；重复键 %d；主分析中缺失的 (task,rule) %d",
-            nrow(A), EXP, dup_keys, missing_keys))
-CHK <- data.frame(item=c("expected_records","actual_records","duplicated_keys","missing_records",
+say(sprintf("   记录数：实际 %d，预期 %d（由冻结 20 表构造）；重复键 %d；预期缺 API %d；API 多出预期 %d",
+            nrow(A), EXP, dup_keys, missing_records, extra_records))
+CHK <- data.frame(item=c("expected_records","actual_records","duplicated_keys",
+                         "expected_missing_in_api","api_extra_not_expected",
                          "max_abs_diff_Cv","max_abs_diff_Ct","max_abs_diff_Gv",
                          "max_abs_diff_Gt","max_abs_diff_Orel","winner_agreement","members_agreement"),
-  value=c(EXP, nrow(A), dup_keys, missing_keys, dCv, dCt, dGv, dGt, dOr, win_same, mem_same),
-  pass=c(nrow(A)==EXP, nrow(A)==EXP, dup_keys==0, missing_keys==0,
+  value=c(EXP, nrow(A), dup_keys, missing_records, extra_records,
+          dCv, dCt, dGv, dGt, dOr, win_same, mem_same),
+  pass=c(nrow(A)==EXP, nrow(A)==EXP, dup_keys==0, missing_records==0, extra_records==0,
          dCv<1e-10, dCt<1e-10, dGv<1e-10, dGt<1e-10, dOr<1e-10, win_same==1, mem_same==1))
 write.table(CHK, file.path(TAB,"49_audit_api_check.tsv"), sep="\t", quote=FALSE, row.names=FALSE)
 if (any(!CHK$pass))

@@ -57,6 +57,24 @@ test_that("家族规则可请求；未知规则报错", {
                "family")
 })
 
+test_that("家族内只有一个候选时返回该候选（与原 rules_one 一致）", {
+  tk <- mk_task(31)
+  fam <- c(Lasso = "linear", A = "linear", B = "linear", C = "linear", D = "tree")
+  r <- audit_predictions(tk, reference = "Lasso",
+                         rules = c("linear_only", "tree_only"), family = fam)
+  d <- r$rules[r$rules$evaluable, ]
+  expect_equal(d$winner[d$rule == "tree_only"], "D")
+  expect_true(d$evaluable[d$rule == "tree_only"])
+  expect_false(is.na(d$winner[d$rule == "linear_only"]))
+})
+
+test_that("没有任何可评估记录时给出明确错误，而不是空表或 aggregate 报错", {
+  tk <- mk_task(32)
+  tk$time_val[] <- NA_real_          # 任务级掩码后验证侧为空 -> 所有 Cv 为 NA
+  expect_error(audit_predictions(tk, reference = "Lasso"),
+               "no evaluable task-rule records")
+})
+
 test_that("默认规则不含 oracle_test；显式请求时才有", {
   r <- audit_predictions(mk_task(4), reference = "Lasso")
   expect_false("oracle_test" %in% r$rules_run)

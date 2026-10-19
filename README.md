@@ -65,11 +65,26 @@ remain the reference implementation of the full study pipeline. A self-contained
 example for the prediction-level entry is available at
 `system.file('examples', 'audit_predictions_minimal.R', package = 'sigAudit')`.
 
+A **real-data** example is also shipped: one saved METABRIC task (18 candidate risk scores,
+494 validation and 495 test patients) is audited with nothing but the installed package.
+
+```r
+# no study scripts, no refitting; standardised ids only
+source(system.file("examples", "audit_predictions_metabric.R", package = "sigAudit"))
+# ~0.5 s on the reference machine; then the same prediction is re-audited
+# against a different fixed reference to show which quantities move.
+```
+
+The example data were derived from the frozen local predictions by
+`system.file('examples', 'export_audit_example.R', package = 'sigAudit')`, which also documents
+the (deliberately result-independent) rule used to choose the signature and split.
+
 The package ships assertion-based tests covering column-order invariance of tie-breaking,
 row-identity checking, rejection of out-of-range C-indices, and the identity between the
 comparable-pair count and `concordant + discordant + tied.x`. Additional tests target
-`audit_predictions()` edge cases: `top_k` registration, family rules, unknown-rule errors,
-cohort weighting when splits have unequal task counts, event coding, and the common patient mask.
+`audit_predictions()` edge cases: `top_k` registration, family rules (including a single-member
+family), unknown-rule errors, cohort weighting when splits have unequal task counts, event coding,
+the common patient mask, and a clear error when no task-rule record is evaluable.
 
 ## Reproducing the study
 

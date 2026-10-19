@@ -1,0 +1,15 @@
+item	value	pass
+p_sum_max_abs_dev	5.99520433297585e-15	TRUE
+k1_eCv_equals_start	0	TRUE
+k1_eCt_equals_start	0	TRUE
+k1_gains_zero	0	TRUE
+full_Cv_equals_argmax	0	TRUE
+full_Ct_equals_argmax	0	TRUE
+metabric_full_Cv_equals_argmax	0	TRUE
+metabric_full_Ct_equals_argmax	0	TRUE
+exhaustive_prob_max_abs_dev	3.33066907387547e-16	TRUE
+monotone_eCv_violations	0	TRUE
+monotone_tasks_checked	7838	TRUE
+n_task_rows	47028	TRUE
+n_tasks	3919	TRUE
+n_tasks_with_both_starts	7838	TRUE

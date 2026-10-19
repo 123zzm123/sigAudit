@@ -112,7 +112,7 @@ key = ["0.0610", "0.0237", "0.0374", "0.0377", "0.0378", "0.0064", "0.0016",
 missing = [k for k in key if k not in short]
 chk("关键结果值齐全", not missing, str(missing))
 chk("Ridge 的 Orel 为 0.0377（非 0.0378）",
-    "0.0374, 0.0377 and 0.0378" in short
+    "0.0374–0.0378" in short
     and "| fixed ridge | +0.0314 | −0.0064 | +0.0377 |" in short)
 chk("去重百分比按任务计数（68 / 699）",
     "in 68 of 3,919 tasks (1.7%)" in short
@@ -127,11 +127,17 @@ for key in ["**Ethics approval", "**Competing interests", "**Funding",
 chk("伦理说明为不适用并给出原因", "Not applicable" in decl and "de-identified" in decl)
 
 print("=== 7. 结构与图 ===")
-chk("图 4 张、表 5 张",
-    len(re.findall(r"^\*\*Fig\.\s*\d+\.", short, re.M)) == 4
+chk("图 5 张、表 5 张",
+    len(re.findall(r"^\*\*Fig\.\s*\d+\.", short, re.M)) == 5
     and len(re.findall(r"^\*\*Table\s*\d+\.", short, re.M)) == 5)
 chk("Limitations 为 Discussion 子节", "### 4.1 Limitations" in short)
 chk("含六队列 p = 0.084", "p = 0.084" in short)
+chk("含搜索规模曲线一节与 Fig. 5",
+    "### 3.5 Gains keep rising on validation" in short and "**Fig. 5**" in short
+    and "**Fig. 5. Reference-anchored search-budget curves.**" in short)
+chk("含实时软件示例与 BBC-CV 相关工作",
+    "A packaged real-data example audits a stored METABRIC task" in short
+    and "Bootstrapping the out-of-sample predictions" in short)
 
 print("=== 8. 文字卫生 ===")
 for name, txt in [("short", short), ("manuscript", man), ("title page", tp),

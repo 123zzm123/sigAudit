@@ -83,3 +83,63 @@
 - 新增分析一律标注为本次修订的探索性/事后诊断。
 - `Orel/Gv` 比例在分母很小或非正时不赋予稳定意义；显示值与全精度的 0.0001 差异
   由表注说明，不为对齐显示值而篡改 Orel。
+
+## 5. 基线条件下的搜索规模曲线（第 8 包评审新增）
+
+- **脚本**：`scripts/50_search_budget_audit.R`；绘图 `scripts/51_search_budget_figure.R`。
+- **输入**：`20_model_metrics_long.tsv`、`20_rule_performance_long.tsv`、
+  `31_metabric_model_metrics.tsv`、`31_metabric_rule_performance.tsv`。
+- **设计**：参考锚定搜索。每个任务固定起点（`Lasso` 或 `Ridge`，起点始终在池中），
+  其余 K−1 个候选从剩余 N−1 个中**均匀无放回**抽取；只按**验证** C-index 选优，
+  并列用原完整池的 `make_prio(names, seed)`（不在子池内重新生成随机数）。
+  K ∈ {1,2,4,8,12,full}；full = 该任务自己的完整分析池，**不统一冒称 K=18**。
+- **期望值精确计算**：顺序按验证 C 降序、以固定优先级破并得到 i=1..N，起点位置 r。
+  K≥2 时 p_r = C(N−r, K−1)/C(N−1, K−1)；i<r 时 p_i = C(N−i−1, K−2)/C(N−1, K−1)；
+  i>r 时为 0。K=1 取起点。加权求和即期望 Cv/Ct，相减得 Gv/Gt/Orel。
+  另给出"子池内均匀随机选一个模型"的期望 C 作为对照（非风险分数集成）。
+- **汇总口径**：TCGA 任务 → (队列×划分) → 队列 → 八队列等权；六 OS 同法；
+  METABRIC 任务 → 签名内跨 seed 平均 → 六签名等权。
+- **输出**：`50_search_budget_task.tsv`、`_by_cohort.tsv`、`_summary.tsv`、`_os6.tsv`、
+  `_metabric.tsv`、`_check.tsv`；图 `fig5_search_budget.*`、`figs2_*`、`figs3_*`；
+  图数据 `figdata_fig5.tsv`、`figdata_figs2.tsv`、`figdata_figs3.tsv`。
+- **核对（`50_search_budget_check.tsv`，全部通过）**：
+  - 概率和为一（最大偏差 5.99e-15）；K=1 取起点、增益恰为 0；
+  - K=full 与旧 `argmax_val` 逐任务一致，TCGA 与 METABRIC 的最大绝对差均为 0；
+  - 公式对 N=2..8 的全部起点位置与 K 与穷举子池一致（最大偏差 3.33e-16）；
+  - 期望验证表现随 K 非下降：7,838 个 任务×起点 序列中 0 例违反；
+  - 47,028 行任务级记录、3,919 个任务、7,838 个 任务×起点。
+- **结果快照（八队列等权 / 六签名等权）**：
+  - TCGA、LASSO 起点：期望测试 C 0.5842→0.6075(K=12)→0.6079(full)；
+    Gv=+0.0610、Gt=+0.0237、Orel=+0.0374（与主稿完全一致）。
+  - TCGA、Ridge 起点：Gv=+0.0314、Gt=−0.0064、Orel=+0.0377（与主稿一致）。
+  - 六 OS：LASSO 起点 Gt=+0.0292；Ridge 起点 Gt=−0.0057。
+  - METABRIC：LASSO 起点 Gv=+0.0151/Gt=+0.0067/Orel=+0.0084；Ridge 起点
+    Gv=+0.0079/Gt=+0.0002/Orel=+0.0077（与主稿一致）。
+  - 均匀随机对照：TCGA full 池期望测试 C 0.5952，低于验证选优的 0.6079，
+    更低于固定 Ridge 起点的 0.6143。
+- **属性**：已见结果后的修订性探索，不是事前预设；不按测试表现选"最优 K"；
+  每池至多约 18 个配置，不外推到大型算法库。
+
+## 6. 真实数据软件示例（第 8 包评审新增）
+
+- **导出脚本**：`inst/examples/export_audit_example.R`（从本地冻结预测导出，去标识化）。
+- **示例数据**：`inst/extdata/audit_example_{val,test,survival}.tsv`。
+  选择规则固定且与效果无关：签名按字典序最小（EndoPredict_11）、seed 最小（20261014）；
+  18 个候选、验证 494、测试 495 位患者；ID 改写为 V####/T####；只含风险分数与生存结局。
+- **运行示例**：`inst/examples/audit_predictions_metabric.R`，只调用**安装后的包**，
+  不 source 研究脚本、不重训模型。
+- **实测**：本机（R 4.6.1，Windows）一次审计 wall time 约 0.5 秒（含读取文件）。
+  示例同时演示更换固定参照后 Cv/Ct 不变、增益与 Orel 改变。
+
+## 7. 第 8 包评审的收尾修复
+
+- `audit_predictions()`：无可评估记录时给出明确错误（不再对空表做 `aggregate`）。
+- 汇总口径文字由"共同可评估集合"改为准确的 **within each rule**：每条规则只在
+  其自身可评估任务上汇总，不同规则集合可不同，因此宏平均不是规则间配对比较；
+  文档建议比较两条规则时取共同任务键。
+- 家族规则：`linear_only`/`tree_only` 改为**非空即返回**（单候选时返回该候选），
+  与原 `rules_one()` 一致。
+- `49`：预期覆盖键改为**直接从冻结 `20_rule_performance_long.tsv` 构造**，
+  并做**双向差集**（预期缺 API / API 多出预期），单个 RDS 整体缺失不再掩盖缺口。
+- `46`：仓库白名单补 `48_dedup_coverage.tsv` 与全部 `50_*` 表。
+

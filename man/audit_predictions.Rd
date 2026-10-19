@@ -66,8 +66,11 @@ audit_predictions(
       \code{winner}、\code{members}、\code{evaluable}（该任务-规则是否可评估）}
     \item{diagnostics}{逐任务的候选池冗余诊断（唯一候选数、常数候选数、重复组数、
       丢弃患者数等）}
-    \item{summary}{按规则的宏汇总；仅在**共同可评估集合**上计算，
-      因此 \code{Orel = Gv - Gt} 在汇总层仍成立}
+    \item{summary}{按规则的宏汇总；每条规则只在**该规则自身可评估的任务**上计算
+      （within each rule：Cv、Ct 与参照 Cv/Ct 四项均有限），因此
+      \code{Orel = Gv - Gt} 在汇总层仍成立。不同规则的可评估任务集可以不同，
+      所以这里的宏平均**不是**规则间的配对比较；要比较两条规则，请取两者的
+      共同任务键自行计算配对差。}
     \item{by_cohort}{按队列的汇总（提供 cohort 时），与 \code{summary} 使用同一
       中间层（先队列×划分、再队列），不是任务层直接平均}
     \item{coverage}{任务数、规则记录数、可评估/不可评估计数、丢弃患者数}

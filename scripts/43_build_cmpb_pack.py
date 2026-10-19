@@ -100,7 +100,7 @@ HIGHLIGHTS = [
     "Validation gains over a fixed LASSO only partly replicate on held-out data",
     "The unmet-gain fraction moves from 61% to above 100% with the reference",
     "Post hoc: fixed ridge beats validation selection in all eight cohorts",
-    "The pattern survives non-degenerate references, duplicate removal and METABRIC",
+    "Search-budget curves: held-out gains flatten while validation gains keep rising",
 ]
 for h in HIGHLIGHTS:
     assert len(h) <= 85, f"Highlight 超过 85 字符（{len(h)}）：{h}"
@@ -180,7 +180,9 @@ the procedure can be reused on other omics endpoints.
 post-hoc comparator analysis, a single fixed ridge regression matched or exceeded validation-set
 selection in all eight cohorts, while the pre-specified top-five ensemble remained below it. The
 pattern persisted in diagnostic analyses restricted to tasks where the LASSO reference was not
-degenerate and after exactly duplicated candidates were removed. The independent cohort again
+degenerate and after exactly duplicated candidates were removed. Post-hoc search-budget curves
+showed that held-out gains flatten as the pool grows while validation gains keep rising. The
+independent cohort again
 showed that the apparent value of search depends on the comparator.
 
 **Why we believe it fits the journal.** The contribution is a computational workflow and its
@@ -217,7 +219,7 @@ readme = f"""# CMPB 投稿包说明
 
 ## 相对长稿（`docs/paper_draft.md`）的结构变化
 
-- 13 个 Methods 小节合并为 5 个，10 个 Results 小节合并为 4 个
+- 13 个 Methods 小节合并为 5 个，10 个 Results 小节合并为 6 个
 - 候选多样性、进入效应、六 OS 子集、模拟细节移入 Supplementary
 - 跨划分稳定性图（原 Fig. 3）移为 Supplementary Fig. S1
 - Limitations 作为 Discussion 的编号小节保留
@@ -232,11 +234,14 @@ Qishan Campus, Minhou County, Fuzhou, Fujian 350108, China；
 - ORCID 未填：属可选，注册后可在投稿系统补充
 - 致谢：按作者要求不写
 - 伦理：学校不出具免除审查证明，采用 `Not applicable` 并说明原因（官方要求如此）
-- 代码与数据：尚未公开，正文写"可向通讯作者索取"，不得写成已公开
+- 代码与数据：正文指向已公开仓库 `https://github.com/123zzm123/sigAudit`
 
-## 尚未生成
+## 交付状态
 
-- 双倍行距、宽页边距的 Word 投稿文件（`paper_reading_copy.docx` 是阅读件，不是投稿件）
+- 双倍行距、宽页边距的投稿 Word 由 `45_make_cmpb_word.py` 生成：
+  `02_manuscript.docx`（正文）、`01_title_page.docx`、`03_highlights.docx`、
+  `06_supplementary/07_supplementary.docx`（S1+S2 合并）。
+- 公开仓库结构与 ZIP 由 `46_export_github_repo.py` 导出；打包/导出/推送三步见根目录 `publish.sh`。
 """
 
 os.makedirs(OUT, exist_ok=True)

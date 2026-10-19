@@ -52,12 +52,13 @@ OBSOLETE = ["01_pilot_experiment.R", "03_analyse_results.R", "05_experiment_v2.R
             "10_analysis.R", "11_predictors.R", "12_rules.R", "14_robustness.R",
             "15_summary.R", "16_remedy_data.R", "17_remedies.R",
             "18_robustness_full.R", "_13_figures_v1_superseded.R", "_v5_full_curve.R",
-            "_20_v1_backup.R", "_21_v1_backup.R"]
+            "_20_v1_backup.R", "_21_v1_backup.R", "_sync_review_pack.py"]
 for f in OBSOLETE:
     fp = os.path.join(OUT, "scripts", f)
     if os.path.exists(fp):
         os.remove(fp)
 cp("reproduce_current.sh")
+cp("publish.sh")
 cp("run_v8_parallel.sh")
 cp("README_current.md")
 
@@ -80,8 +81,11 @@ TABLES = [
     "31_metabric_model_metrics.tsv", "31_metabric_rule_performance.tsv",
     "32_metabric_baseline_sensitivity.tsv", "36_metabric_prediction_check.tsv",
     "47_nonconstant_overall.tsv", "47_nonconstant_by_cohort.tsv",
-    "48_dedup_summary.tsv", "48_dedup_by_cohort.tsv",
+    "48_dedup_summary.tsv", "48_dedup_by_cohort.tsv", "48_dedup_coverage.tsv",
     "48_dedup_per_task.tsv", "48_dedup_performance_long.tsv",
+    "50_search_budget_task.tsv", "50_search_budget_by_cohort.tsv",
+    "50_search_budget_summary.tsv", "50_search_budget_os6.tsv",
+    "50_search_budget_metabric.tsv", "50_search_budget_check.tsv",
     "49_audit_api_check.tsv", "49_audit_api_reference_switch.tsv",
     "49_audit_api_dedup.tsv",
 ]
@@ -236,6 +240,12 @@ io.open(os.path.join(OUT, "results", "README.md"), "w", encoding="utf-8", newlin
 """# Results
 
 - `figures/` — final figures (PDF and 300-dpi PNG) and the figure data behind them.
+  File names carry a historical offset relative to the manuscript numbering:
+  `fig1_design` (Fig. 1), `fig2_gain_decomposition` (Fig. 2), `fig4_rule_pairing` (Fig. 3),
+  `fig5_metabric` (Fig. 4), `fig5_search_budget` (Fig. 5, revision analysis), while
+  `fig3_cross_split` is Supplementary Fig. S1 and `figs2_*` / `figs3_*` are Supplementary
+  Figs. S2 and S3. The matching data files are `figdata_*.tsv` (`figdata_search_budget_*.tsv`
+  for the search-budget figures).
 - `tables/` — result tables used in the manuscript:
   - `20_summary.tsv` — rule-level summary (15 rows)
   - `20_rule_performance_long.tsv` — task-level record for every rule (58,785 rows)
@@ -247,6 +257,7 @@ io.open(os.path.join(OUT, "results", "README.md"), "w", encoding="utf-8", newlin
   - `47_*` — non-degenerate-reference stratification (all vs non-constant LASSO)
   - `48_*` — validation-prediction duplicate-collapse sensitivity
   - `49_*` — prediction-level interface consistency check and reference switch
+  - `50_*` — reference-anchored search-budget curves (expected Cv/Ct by pool size K)
   - `31_*`, `32_*`, `36_*` — METABRIC metrics, sensitivity and re-verification
 - `manifest/` — candidate-pool diversity tables.
 
@@ -322,11 +333,26 @@ remain the reference implementation of the full study pipeline. A self-contained
 example for the prediction-level entry is available at
 `system.file('examples', 'audit_predictions_minimal.R', package = 'sigAudit')`.
 
+A **real-data** example is also shipped: one saved METABRIC task (18 candidate risk scores,
+494 validation and 495 test patients) is audited with nothing but the installed package.
+
+```r
+# no study scripts, no refitting; standardised ids only
+source(system.file("examples", "audit_predictions_metabric.R", package = "sigAudit"))
+# ~0.5 s on the reference machine; then the same prediction is re-audited
+# against a different fixed reference to show which quantities move.
+```
+
+The example data were derived from the frozen local predictions by
+`system.file('examples', 'export_audit_example.R', package = 'sigAudit')`, which also documents
+the (deliberately result-independent) rule used to choose the signature and split.
+
 The package ships assertion-based tests covering column-order invariance of tie-breaking,
 row-identity checking, rejection of out-of-range C-indices, and the identity between the
 comparable-pair count and `concordant + discordant + tied.x`. Additional tests target
-`audit_predictions()` edge cases: `top_k` registration, family rules, unknown-rule errors,
-cohort weighting when splits have unequal task counts, event coding, and the common patient mask.
+`audit_predictions()` edge cases: `top_k` registration, family rules (including a single-member
+family), unknown-rule errors, cohort weighting when splits have unequal task counts, event coding,
+the common patient mask, and a clear error when no task-rule record is evaluable.
 
 ## Reproducing the study
 

@@ -165,8 +165,11 @@ if (!exists("%||%")) `%||%` <- function(a, b) if (is.null(a)) b else a
 #'       \code{winner}、\code{members}、\code{evaluable}（该任务-规则是否可评估）}
 #'     \item{diagnostics}{逐任务的候选池冗余诊断（唯一候选数、常数候选数、重复组数、
 #'       丢弃患者数等）}
-#'     \item{summary}{按规则的宏汇总；仅在**共同可评估集合**上计算，
-#'       因此 \code{Orel = Gv - Gt} 在汇总层仍成立}
+#'     \item{summary}{按规则的宏汇总；每条规则只在**该规则自身可评估的任务**上计算
+#'       （within each rule：Cv、Ct 与参照 Cv/Ct 四项均有限），因此
+#'       \code{Orel = Gv - Gt} 在汇总层仍成立。不同规则的可评估任务集可以不同，
+#'       所以这里的宏平均**不是**规则间的配对比较；要比较两条规则，请取两者的
+#'       共同任务键自行计算配对差。}
 #'     \item{by_cohort}{按队列的汇总（提供 cohort 时），与 \code{summary} 使用同一
 #'       中间层（先队列×划分、再队列），不是任务层直接平均}
 #'     \item{coverage}{任务数、规则记录数、可评估/不可评估计数、丢弃患者数}
@@ -322,8 +325,10 @@ audit_predictions <- function(tasks, reference = "Lasso", rules = NULL, top_k = 
     if (any(FAMILY_RULES %in% rules)) {
       tre <- pool[pool %in% names(family)[family == "tree"]]
       lin <- setdiff(pool, tre)
-      if ("linear_only" %in% rules) sel$linear_only <- if (length(lin) >= 2) pick1(lin) else NA_character_
-      if ("tree_only"   %in% rules) sel$tree_only   <- if (length(tre) >= 2) pick1(tre) else NA_character_
+      ## 家族内选优：与原 rules_one() 一致，只要该家族非空就返回其最优候选
+      ## （单候选时即返回该候选），不额外要求至少两个候选。
+      if ("linear_only" %in% rules) sel$linear_only <- if (length(lin)) pick1(lin) else NA_character_
+      if ("tree_only"   %in% rules) sel$tree_only   <- if (length(tre)) pick1(tre) else NA_character_
     }
     if (need_resamp) {
       if ("majority_vote" %in% rules && sum(wins) > 0)
@@ -394,9 +399,11 @@ audit_predictions <- function(tasks, reference = "Lasso", rules = NULL, top_k = 
       BYC <- NULL
     }
   } else {
-    SUM <- data.frame(rule = character(0), Cv = numeric(0), Ct = numeric(0),
-                      Gv = numeric(0), Gt = numeric(0), Orel = numeric(0))
-    BYC <- NULL
+    ## 没有任何可评估记录时不再继续做 aggregate（空 data.frame 会直接报错），
+    ## 也不静默返回一张空表：明确报错，提示调用者检查输入。
+    stop("no evaluable task-rule records: Cv, Ct and the reference C-index are ",
+         "not jointly finite for any task. Check the predictions, the outcome ",
+         "columns and the reference name.")
   }
   ntask <- stats::aggregate(list(n_tasks = RE$Cv), by = RE["rule"], FUN = length)
   SUM$n_tasks <- ntask$n_tasks[match(SUM$rule, ntask$rule)]
@@ -407,7 +414,7 @@ audit_predictions <- function(tasks, reference = "Lasso", rules = NULL, top_k = 
     "Ct is a held-out test estimate, not a known truth",
     "oracle_test is a post-hoc test-set maximum and is NOT implementable (opt-in only)",
     "the reference is kept as its own output even if it duplicates another candidate",
-    "summary is computed on the common evaluable set (Cv, Ct, reference Cv and Ct all finite)")
+    "summary is computed within each rule, on that rule's own evaluable tasks (Cv, Ct, reference Cv and Ct all finite); rule sets can differ, so these marginal means are not paired comparisons")
   if (!has_grp) notes <- c(notes,
     "no cohort/split labels supplied: tasks were aggregated with equal weight; if tasks share patients this is not a valid unit of replication")
   if (deduplicate) notes <- c(notes,
