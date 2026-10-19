@@ -30,7 +30,7 @@
 # 输入：results/tables/20_model_metrics_long.tsv, 20_rule_performance_long.tsv,
 #       31_metabric_model_metrics.tsv, 31_metabric_rule_performance.tsv
 # 输出：50_search_budget_task.tsv / _by_cohort.tsv / _summary.tsv /
-#       _os6.tsv / _metabric.tsv / _check.tsv + logs/50_search_budget.log
+#       _os6.tsv / _metabric.tsv / _metabric_task.tsv / _check.tsv + logs/50_search_budget.log
 # ============================================================
 options(stringsAsFactors = FALSE)
 PROJ <- Sys.getenv("SIGAUDIT_ROOT", "D:/bioinfo/sigAudit")
@@ -120,12 +120,9 @@ TD <- do.call(rbind, TASK_ROWS); rownames(TD) <- NULL
 ## full 在所有任务上归为同一个 K 层级（K 列等于各自池大小 N，若按 K 分组会把
 ## full 拆成 N=15/16/17/18 多组，破坏队列等权）。Kgrp=0 表示 full。
 TD$Kgrp <- ifelse(TD$is_full == 1L, 0L, TD$K)
-## 写出时把期望值四舍五入到 6 位小数：表给外部复算用，1e-6 远小于论文显示的 4 位；
-## 汇总（SUM/COH/...)仍用内存中的全精度值。
-TD_OUT <- TD[, setdiff(colnames(TD), "Kgrp")]
-RCOL <- c("Cv_start","Ct_start","eCv","eCt","eRandCv","eRandCt","Gv","Gt","Orel","p_sum")
-for (cc in RCOL) TD_OUT[[cc]] <- round(TD_OUT[[cc]], 6)
-write.table(TD_OUT, file.path(TAB,"50_search_budget_task.tsv"), sep="\t", quote=FALSE, row.names=FALSE)
+## 直接写全精度（不预先 round）：显示时再舍入，避免建立第二套数据版本。
+write.table(TD[, setdiff(colnames(TD), "Kgrp")],
+            file.path(TAB,"50_search_budget_task.tsv"), sep="\t", quote=FALSE, row.names=FALSE)
 say("任务×起点×K 记录：", nrow(TD), "；任务 ", length(unique(paste(TD$cohort,TD$seed,TD$geneset))))
 
 ## ---- 三层级汇总：任务 -> (队列×划分) -> 队列 -> 队列等权 ----
@@ -207,6 +204,15 @@ for (i in seq_len(nrow(MB))) {
 MB <- MB[, c("signature","start","K","K_label","is_full",MC,"n_tasks")]
 write.table(MB, file.path(TAB,"50_search_budget_metabric.tsv"), sep="\t", quote=FALSE, row.names=FALSE)
 
+## 与 TCGA 逐任务表对称：写出 METABRIC 的任务×起点×K 明细（360 行）
+MBT_OUT <- MBt[, c("signature","seed","start","N","K","is_full",
+                   "Cv_start","Ct_start","eCv","eCt","eRandCv","eRandCt",
+                   "Gv","Gt","Orel","p_sum")]
+MBT_OUT <- MBT_OUT[order(MBT_OUT$signature, MBT_OUT$seed, MBT_OUT$start,
+                         ifelse(MBT_OUT$is_full == 1L, 999L, MBT_OUT$K)), ]
+write.table(MBT_OUT, file.path(TAB,"50_search_budget_metabric_task.tsv"),
+            sep="\t", quote=FALSE, row.names=FALSE)
+
 ## METABRIC 的 K=full 与旧 argmax 一致性核对
 MBt$key <- paste(MBt$signature, MBt$seed, sep="|")
 amb <- RPb[RPb$rule=="argmax_val", c("signature","seed","cv","ct")]
@@ -254,21 +260,37 @@ for (k in unique(TD$key)) {
 ## C4. K=1 时 Gv/Gt/Orel 为零
 k1_dev_G <- max(abs(c(k1$Gv, k1$Gt, k1$Orel)))
 
+## C5. 任务数与任务键集合：直接与预期规模比较（不是无条件 TRUE）
+n_tcga_rows <- nrow(TD)
+n_tcga_tasks <- length(unique(TD$task))
+n_tcga_keys <- length(unique(TD$key))
+n_mb_rows <- nrow(MBt)
+n_mb_tasks <- length(unique(paste(MBt$signature, MBt$seed)))
+n_mb_keys <- length(unique(paste(MBt$signature, MBt$seed, MBt$start)))
+keys_tcga_ok <- setequal(unique(TD$task), unique(am$task))
+keys_mb_ok <- setequal(unique(MBt$key), unique(amb$key))
+
 CHK <- data.frame(
   item=c("p_sum_max_abs_dev","k1_eCv_equals_start","k1_eCt_equals_start","k1_gains_zero",
          "full_Cv_equals_argmax","full_Ct_equals_argmax",
          "metabric_full_Cv_equals_argmax","metabric_full_Ct_equals_argmax",
          "exhaustive_prob_max_abs_dev",
          "monotone_eCv_violations","monotone_tasks_checked",
-         "n_task_rows","n_tasks","n_tasks_with_both_starts"),
+         "n_task_rows","n_tasks","n_tasks_with_both_starts",
+         "n_metabric_task_rows","n_metabric_tasks","n_metabric_with_both_starts",
+         "full_keys_match_argmax","metabric_full_keys_match_argmax"),
   value=c(pdev, k1_dev_Cv, k1_dev_Ct, k1_dev_G, full_dev_Cv, full_dev_Ct,
           mb_full_dev_Cv, mb_full_dev_Ct, exh_max,
-          mono_viol, mono_tot, nrow(TD), length(unique(TD$task)),
-          length(unique(TD$key))),
+          mono_viol, mono_tot, n_tcga_rows, n_tcga_tasks, n_tcga_keys,
+          n_mb_rows, n_mb_tasks, n_mb_keys,
+          keys_tcga_ok, keys_mb_ok),
   pass=c(pdev < 1e-12, k1_dev_Cv < 1e-15, k1_dev_Ct < 1e-15, k1_dev_G < 1e-15,
          full_dev_Cv < 1e-10, full_dev_Ct < 1e-10, mb_full_dev_Cv < 1e-10,
          mb_full_dev_Ct < 1e-10, exh_max < 1e-12,
-         mono_viol == 0, TRUE, TRUE, TRUE, TRUE))
+         mono_viol == 0, mono_tot == 7838L,
+         n_tcga_rows == 47028L, n_tcga_tasks == 3919L, n_tcga_keys == 7838L,
+         n_mb_rows == 360L, n_mb_tasks == 30L, n_mb_keys == 60L,
+         isTRUE(keys_tcga_ok), isTRUE(keys_mb_ok)))
 write.table(CHK, file.path(TAB,"50_search_budget_check.tsv"), sep="\t", quote=FALSE, row.names=FALSE)
 
 say(""); say("================ 核对 ================")

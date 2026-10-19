@@ -71,8 +71,10 @@ A **real-data** example is also shipped: one saved METABRIC task (18 candidate r
 ```r
 # no study scripts, no refitting; standardised ids only
 source(system.file("examples", "audit_predictions_metabric.R", package = "sigAudit"))
-# ~0.5 s on the reference machine; then the same prediction is re-audited
-# against a different fixed reference to show which quantities move.
+# ~0.5 s for one audit of the requested rules on the already-loaded task
+# (first call in a fresh session; excludes reading the files, excludes model
+# fitting); the example then re-audits the same prediction against a
+# different fixed reference.
 ```
 
 The example data were derived from the frozen local predictions by

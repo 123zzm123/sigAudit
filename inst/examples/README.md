@@ -18,16 +18,22 @@ source(system.file("examples", "audit_predictions_metabric.R", package = "sigAud
 ```
 
 Measured on the reference machine (R 4.6.1, x86_64-w64-mingw32, Windows): one
-`audit_predictions()` call on this task takes about **0.5 s** including reading the two score
-matrices from disk. No model is fitted, and the wall time is not a training time.
+`audit_predictions()` call for the requested rules (`none`, `argmax_val`, `top5_ensemble`) on
+this **already-loaded** 18-candidate, 989-record task takes about **0.55–0.62 s on the first
+call in a fresh session**, and about **0.1 s** for further calls in the same session. The timer
+is started after the score matrices and outcomes have been read from disk and assembled into a
+task, so the figure excludes file reading and excludes model fitting; it is also not a benchmark
+of every rule (the resampling remedies refit nothing but call the concordance routine
+repeatedly and are not requested here).
 
 ## What the example shows
 
 1. A single call returns candidate diagnostics, the fixed-reference comparison and the rule
    results (`res$summary`, `res$diagnostics`, `res$rules`).
-2. Switching the fixed reference from `Lasso` to `Ridge` leaves each selected model's `Cv` and
-   `Ct` unchanged, because those are properties of the selected model, while `Gv`, `Gt` and
-   `Orel` move with the reference.
+2. Switching the fixed reference from `Lasso` to `Ridge` leaves the selected candidate's `Cv`
+   and `Ct` unchanged for `argmax_val` and `top5_ensemble` (the candidate pool is the same),
+   while `none` *is* the reference and so its `Cv`/`Ct` change with it; `Gv`, `Gt` and `Orel`
+   move with the reference for every rule.
 
 ## Data
 

@@ -100,7 +100,7 @@ HIGHLIGHTS = [
     "Validation gains over a fixed LASSO only partly replicate on held-out data",
     "The unmet-gain fraction moves from 61% to above 100% with the reference",
     "Post hoc: fixed ridge beats validation selection in all eight cohorts",
-    "Search-budget curves: held-out gains flatten while validation gains keep rising",
+    "In TCGA, expanding ridge-anchored search raises validation gains but cuts test gains",
 ]
 for h in HIGHLIGHTS:
     assert len(h) <= 85, f"Highlight 超过 85 字符（{len(h)}）：{h}"
@@ -136,7 +136,7 @@ reproducibility
 - Main text (Introduction to Data and code availability): {W_BODY} words (limit 3,500)
 - Figures: {n_fig} · Tables: {n_tab} · References: {n_ref} (limit 50)
 - Highlights: {len(HIGHLIGHTS)} bullets, each ≤ 85 characters
-- Supplementary: Supplementary Methods, Supplementary Results, Supplementary Figs. S1–S3, 29 S-tables
+- Supplementary: Supplementary Methods, Supplementary Results, Supplementary Figs. S1–S5, 30 S-tables
 
 **Declarations**
 
@@ -287,5 +287,94 @@ if len(FIGMAP) != n_fig:
     print(f"图数量不一致: 图注 {n_fig} 张, 映射 {len(FIGMAP)} 张")
     sys.exit(1)
 
+# ---------- 同步补充图（06_supplementary，显式清单 + 清理不在清单内的旧文件）----------
+SUPMAP = {
+    "fig3_cross_split":                   "figS1_cross_split",
+    "figs2_search_budget_cohorts_lasso":  "figS2_search_budget_cohorts_lasso",
+    "figs3_search_budget_cohorts_ridge":  "figS3_search_budget_cohorts_ridge",
+    "figs4_search_budget_signatures_lasso": "figS4_search_budget_signatures_lasso",
+    "figs5_search_budget_signatures_ridge": "figS5_search_budget_signatures_ridge",
+}
+SUPOUT = os.path.join(OUT, "06_supplementary")
+os.makedirs(SUPOUT, exist_ok=True)
+sup_missing = []
+for src_stem, dst_stem in SUPMAP.items():
+    for ext in (".pdf", ".png"):
+        a = os.path.join(FIGSRC, src_stem + ext)
+        if not os.path.exists(a):
+            sup_missing.append(src_stem + ext)
+            continue
+        shutil.copy2(a, os.path.join(SUPOUT, dst_stem + ext))
+if sup_missing:
+    print("补充图文件缺失:")
+    for x in sup_missing:
+        print("  -", x)
+    sys.exit(1)
+sup_keep = set(a + e for a in SUPMAP.values() for e in (".pdf", ".png"))
+for f in sorted(os.listdir(SUPOUT)):
+    if f.startswith("figS") and f not in sup_keep:
+        os.remove(os.path.join(SUPOUT, f))
+        print("  清除过期补充图:", f)
+
+# ---------- 同步补充材料表格（显式清单 + 表头一致性断言）----------
+TABMAP = {
+    "results/tables/20_summary.tsv":                           "tcga_rule_summary.tsv",
+    "results/tables/20_rule_performance_long.tsv":             "tcga_rule_performance_long.tsv",
+    "results/tables/20_model_metrics_long.tsv":                "model_metrics_long.tsv",
+    "results/tables/29_baseline_sensitivity.tsv":              "baseline_sensitivity.tsv",
+    "results/manifest/candidate_diversity.tsv":                "candidate_diversity.tsv",
+    "results/manifest/candidate_top5_dup.tsv":                 "candidate_top5_dup.tsv",
+    "results/tables/21_entry_effect.tsv":                      "entry_effect.tsv",
+    "results/tables/21_entry_summary.tsv":                     "entry_summary.tsv",
+    "results/tables/26_signature_tasks.tsv":                   "signature_tasks.tsv",
+    "results/tables/26_signature_summary.tsv":                 "signature_summary.tsv",
+    "results/tables/25_simulation_final_replicates.tsv":       "simulation_replicates.tsv",
+    "results/tables/31_metabric_model_metrics.tsv":            "metabric_model_metrics.tsv",
+    "results/tables/31_metabric_rule_performance.tsv":         "metabric_rule_performance.tsv",
+    "results/tables/32_metabric_baseline_sensitivity.tsv":     "metabric_baseline_sensitivity.tsv",
+    "results/tables/36_metabric_prediction_check.tsv":         "metabric_prediction_check.tsv",
+    "results/tables/47_nonconstant_overall.tsv":               "nonconstant_overall.tsv",
+    "results/tables/47_nonconstant_by_cohort.tsv":             "nonconstant_by_cohort.tsv",
+    "results/tables/48_dedup_summary.tsv":                     "dedup_summary.tsv",
+    "results/tables/48_dedup_coverage.tsv":                    "dedup_coverage.tsv",
+    "results/tables/48_dedup_per_task.tsv":                    "dedup_per_task.tsv",
+    "results/tables/48_dedup_performance_long.tsv":            "dedup_performance_long.tsv",
+    "results/tables/49_audit_api_check.tsv":                   "audit_api_check.tsv",
+    "results/tables/49_audit_api_reference_switch.tsv":        "audit_api_reference_switch.tsv",
+    "results/tables/50_search_budget_task.tsv":                "search_budget_task.tsv",
+    "results/tables/50_search_budget_by_cohort.tsv":           "search_budget_by_cohort.tsv",
+    "results/tables/50_search_budget_summary.tsv":             "search_budget_summary.tsv",
+    "results/tables/50_search_budget_os6.tsv":                 "search_budget_os6.tsv",
+    "results/tables/50_search_budget_metabric.tsv":            "search_budget_metabric.tsv",
+    "results/tables/50_search_budget_metabric_task.tsv":       "search_budget_metabric_task.tsv",
+    "results/tables/50_search_budget_check.tsv":               "search_budget_check.tsv",
+}
+SUPT = os.path.join(SUPOUT, "tables")
+os.makedirs(SUPT, exist_ok=True)
+tab_missing = []
+for src_rel, dst_name in TABMAP.items():
+    a = os.path.join(ROOT, src_rel)
+    if not os.path.exists(a):
+        tab_missing.append(src_rel)
+        continue
+    b = os.path.join(SUPT, dst_name)
+    if os.path.exists(b):
+        with io.open(a, encoding="utf-8") as fah, io.open(b, encoding="utf-8") as fbh:
+            if fah.readline() != fbh.readline():
+                tab_missing.append(src_rel + "  (表头与已交付 %s 不一致)" % dst_name)
+                continue
+    shutil.copy2(a, b)
+if tab_missing:
+    print("补充表缺失或表头不一致:")
+    for x in tab_missing:
+        print("  -", x)
+    sys.exit(1)
+keep_tab = set(TABMAP.values())
+for f in sorted(os.listdir(SUPT)):
+    if f.endswith(".tsv") and f not in keep_tab:
+        os.remove(os.path.join(SUPT, f))
+        print("  清除过期补充表:", f)
+
+print(f"补充材料: {len(SUPMAP)} 张图, {len(TABMAP)} 张表")
 print(f"输出: {OUT}")
 print(f"摘要 {W_ABS} 词；正文 {W_BODY} 词；图 {n_fig}；表 {n_tab}；文献 {n_ref}")

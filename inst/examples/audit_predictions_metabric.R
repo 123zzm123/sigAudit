@@ -42,7 +42,9 @@ cat("== sigAudit on one real METABRIC task ==\n")
 cat(sprintf("candidates: %d   n_val: %d   n_test: %d\n\n",
             res$diagnostics$n_candidates, nrow(val), nrow(tst)))
 print(res)
-cat(sprintf("\naudit wall time: %.2f s (predictions read from disk; no model fitting)\n", dt))
+cat(sprintf("\naudit wall time: %.2f s\n", dt))
+cat("  (one audit of the requested rules on the already-loaded task;\n")
+cat("   excludes file reading and model fitting)\n")
 
 ## ---- 更换固定参照：哪些 Cv/Ct 不变，哪些增益改变 ----
 resR <- audit_predictions(task, reference = "Ridge",
@@ -55,8 +57,9 @@ for (i in seq_len(nrow(a))) {
   cat(sprintf("%-14s %10.4f %10.4f %10.4f %10.4f\n",
               a$rule[i], a$Cv[i], a$Ct[i], b$Cv[j], b$Ct[j]))
 }
-cat("\nCv/Ct are properties of the selected model and are unchanged; only the gains and Orel\n")
-cat("move with the reference:\n")
+cat("\nCv/Ct belong to the selected candidate, so argmax_val and top5_ensemble keep the same\n")
+cat("Cv/Ct while the candidate pool is unchanged; `none` *is* the current reference, so its\n")
+cat("Cv/Ct move with the reference. Only the gains and Orel are reference-adjusted:\n")
 cat(sprintf("  argmax_val: Orel(Lasso) = %+.4f   Orel(Ridge) = %+.4f\n",
             a$Orel[a$rule == "argmax_val"], b$Orel[b$rule == "argmax_val"]))
 cat(sprintf("  top5_ensemble: Orel(Lasso) = %+.4f   Orel(Ridge) = %+.4f\n",

@@ -85,7 +85,8 @@ TABLES = [
     "48_dedup_per_task.tsv", "48_dedup_performance_long.tsv",
     "50_search_budget_task.tsv", "50_search_budget_by_cohort.tsv",
     "50_search_budget_summary.tsv", "50_search_budget_os6.tsv",
-    "50_search_budget_metabric.tsv", "50_search_budget_check.tsv",
+    "50_search_budget_metabric.tsv", "50_search_budget_metabric_task.tsv",
+    "50_search_budget_check.tsv",
     "49_audit_api_check.tsv", "49_audit_api_reference_switch.tsv",
     "49_audit_api_dedup.tsv",
 ]
@@ -243,9 +244,10 @@ io.open(os.path.join(OUT, "results", "README.md"), "w", encoding="utf-8", newlin
   File names carry a historical offset relative to the manuscript numbering:
   `fig1_design` (Fig. 1), `fig2_gain_decomposition` (Fig. 2), `fig4_rule_pairing` (Fig. 3),
   `fig5_metabric` (Fig. 4), `fig5_search_budget` (Fig. 5, revision analysis), while
-  `fig3_cross_split` is Supplementary Fig. S1 and `figs2_*` / `figs3_*` are Supplementary
-  Figs. S2 and S3. The matching data files are `figdata_*.tsv` (`figdata_search_budget_*.tsv`
-  for the search-budget figures).
+  `fig3_cross_split` is Supplementary Fig. S1 and `figs2_*`, `figs3_*`, `figs4_*` and `figs5_*`
+  are Supplementary Figs. S2–S5 (search-budget curves per TCGA cohort and per METABRIC
+  signature, for the LASSO and ridge starts respectively). The matching data files are
+  `figdata_*.tsv` (`figdata_search_budget_*.tsv` for the search-budget figures).
 - `tables/` — result tables used in the manuscript:
   - `20_summary.tsv` — rule-level summary (15 rows)
   - `20_rule_performance_long.tsv` — task-level record for every rule (58,785 rows)
@@ -339,8 +341,10 @@ A **real-data** example is also shipped: one saved METABRIC task (18 candidate r
 ```r
 # no study scripts, no refitting; standardised ids only
 source(system.file("examples", "audit_predictions_metabric.R", package = "sigAudit"))
-# ~0.5 s on the reference machine; then the same prediction is re-audited
-# against a different fixed reference to show which quantities move.
+# ~0.5 s for one audit of the requested rules on the already-loaded task
+# (first call in a fresh session; excludes reading the files, excludes model
+# fitting); the example then re-audits the same prediction against a
+# different fixed reference.
 ```
 
 The example data were derived from the frozen local predictions by

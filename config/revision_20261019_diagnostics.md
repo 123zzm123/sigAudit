@@ -149,3 +149,28 @@
   通过项由 34 增至 40。
 - `46`：导出统计不再把 `.git` 计入文件数与体积（此前因提交对象而虚高）。
 
+## 8. 第 9 包评审（投稿收尾轮）改动
+
+**没有新增分析**；只改表述、图、补充材料对称性、示例说明、文件入口与结果精度。
+
+- 摘要：TCGA 搜索规模句改为"验证增益上升，留出增益从 LASSO 起点趋平、从 ridge 起点
+  越来越负"；METABRIC 写明"变化更小、ridge 锚定增益近零"；结论句加入 sigAudit 用途。
+  摘要 242 词、正文 3,480 词（上限 250/3,500）。
+- 引言：用两段重写末尾，把"候选池扩大后增益如何变化、答案是否取决于固定起点"写成研究
+  问题；删除"The contribution is the audit itself"。
+- §3.5：`every K` → `every evaluated K greater than one`；METABRIC 段改为递减 + 小白正值
+  + 签名间不均一。Discussion 的 ridge 结论限定为 TCGA 且 K>1。Highlights 末条改为 TCGA
+  版本（84 字符）。
+- Fig. 5：A–D 面板标识、短标题、四面板共用图例；图注补"离散档位/连线不表插值/纵轴不可比"。
+  补充图由 2 张（LASSO 起点）扩为 4 张：S2/S3 为八队列的 LASSO/ridge 起点，S4/S5 为六
+  签名的 LASSO/ridge 起点；**全部用已有 50 表重绘，未新增计算**。
+- 真实数据示例：计时口径改为"首次调用 0.55–0.62 s、同会话后续约 0.1 s，不含读取与拟合，
+  只请求 none/argmax_val/top5_ensemble"；`none` 的 Cv/Ct 随参照改变的说明改正。
+  正文 §2.5、`S1.6`、`inst/examples/README.md`、`46` README 同步。
+- 结果输出：`50_search_budget_task.tsv` 恢复**全精度**（去掉写出前 round）；新增
+  `50_search_budget_metabric_task.tsv`（360 行）；`50_search_budget_check.tsv` 的任务数与
+  键集合改为**真实断言**（19 项，全通过）。
+- 构建防漏：`43` 自动同步 5 张正文图、5 张补充图（S1–S5）与 30 张补充表，并断言表头；
+  `44` 通过项 52；投稿包固定为 5 图 + 5 补充图 + 30 补充表。
+- 文件入口：旧 `论文_CMPB短稿.md` 归档，只留 `审阅_CMPB短稿.md`。
+

@@ -13,3 +13,8 @@ monotone_tasks_checked	7838	TRUE
 n_task_rows	47028	TRUE
 n_tasks	3919	TRUE
 n_tasks_with_both_starts	7838	TRUE
+n_metabric_task_rows	360	TRUE
+n_metabric_tasks	30	TRUE
+n_metabric_with_both_starts	60	TRUE
+full_keys_match_argmax	1	TRUE
+metabric_full_keys_match_argmax	1	TRUE

@@ -138,6 +138,29 @@ chk("含搜索规模曲线一节与 Fig. 5",
 chk("含实时软件示例与 BBC-CV 相关工作",
     "A packaged real-data example audits a stored METABRIC task" in short
     and "Bootstrapping the out-of-sample predictions" in short)
+print("=== 8. 文字卫生 ===")
+_flat = re.sub(r"\s+", " ", short)
+_hlflat = re.sub(r"\s+", " ", hl)
+chk("摘要写出 TCGA 搜索规模模式与 METABRIC 近零",
+    "expanding the candidate pool increased validation gains" in _flat
+    and "ridge-anchored gains near zero" in _flat)
+chk("引言把搜索规模问题写入研究目的",
+    "how that gain changes as the candidate pool expands" in _flat
+    and "reference-anchored search budgets" in _flat)
+chk("§3.5 措辞为 evaluated K greater than one",
+    "at every evaluated K greater than one" in _flat)
+chk("§3.5 METABRIC 段写明小而非零、签名间不均一",
+    "ridge-anchored gains" in _flat and "not uniform across signatures" in _flat)
+chk("Discussion 的 Ridge 结论限定在 TCGA 与 K>1",
+    "in TCGA the expected held-out performance remained below the fixed ridge start at every evaluated" in _flat)
+chk("Highlights 含 TCGA 搜索规模一条",
+    "In TCGA, expanding ridge-anchored search raises validation gains" in _hlflat)
+chk("正文引用 Supplementary Figs. S2–S5", "Supplementary Figs. S2–S5" in _flat)
+_supfigs = os.path.join(CMPB, "06_supplementary")
+for _n in range(1, 6):
+    chk(f"补充材料有 Fig. S{_n} 的 PDF 与 PNG",
+        bool(glob.glob(os.path.join(_supfigs, f"figS{_n}_*.pdf")))
+        and bool(glob.glob(os.path.join(_supfigs, f"figS{_n}_*.png"))))
 _figfiles = os.path.join(CMPB, "figures")
 for _n in range(1, 6):
     chk(f"投稿包 figures/ 有 Fig. {_n} 的 PDF 与 PNG",
