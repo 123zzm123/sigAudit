@@ -74,8 +74,9 @@ for m in re.finditer(r"\[([0-9,\u2013\- ]+)\]", body):
         for n in rng:
             if n not in seen:
                 seen.append(n)
-if seen != list(range(1, 19)):
-    errs.append(f"引用首次出现顺序不是 1–17：{seen}")
+n_refs = len(re.findall(r"^\d+\.\s", refs, re.M))
+if seen != list(range(1, n_refs + 1)):
+    errs.append(f"引用首次出现顺序不是 1–{n_refs}：{seen}")
 
 # 声明齐全
 for key in ["**Ethics approval", "**Competing interests", "**Funding",
@@ -98,8 +99,8 @@ HIGHLIGHTS = [
     "Paired audit of algorithm search across 8 TCGA cohorts and 3,919 tasks",
     "Validation gains over a fixed LASSO only partly replicate on held-out data",
     "The unmet-gain fraction moves from 61% to above 100% with the reference",
-    "A fixed ridge matches or beats validation selection in all eight cohorts",
-    "An independent cohort reproduces the reference dependence of the gain",
+    "Post hoc: fixed ridge beats validation selection in all eight cohorts",
+    "The pattern survives non-degenerate references, duplicate removal and METABRIC",
 ]
 for h in HIGHLIGHTS:
     assert len(h) <= 85, f"Highlight 超过 85 字符（{len(h)}）：{h}"
@@ -174,11 +175,13 @@ implemented as a documented R package and accompanying scripts with assertion-ba
 the procedure can be reused on other omics endpoints.
 
 **What we found.** The validation gain replicated only in part (reference-adjusted optimism
-0.0374). The widely quoted relative unmet fraction was reference-dependent (61% against a fixed
-LASSO, above 100% against a fixed ridge), whereas the absolute magnitude was similar across
-references. A single fixed ridge regression matched or exceeded validation-set selection in all
-eight cohorts, while the pre-specified top-five ensemble remained below it. The independent
-cohort again showed that the apparent value of search depends on the comparator.
+0.0374). The relative unmet fraction was reference-dependent (61% against a fixed LASSO, above
+100% against a fixed ridge), whereas the absolute magnitude was similar across references. In a
+post-hoc comparator analysis, a single fixed ridge regression matched or exceeded validation-set
+selection in all eight cohorts, while the pre-specified top-five ensemble remained below it. The
+pattern persisted in diagnostic analyses restricted to tasks where the LASSO reference was not
+degenerate and after exactly duplicated candidates were removed. The independent cohort again
+showed that the apparent value of search depends on the comparator.
 
 **Why we believe it fits the journal.** The contribution is a computational workflow and its
 systematic evaluation: a paired accounting procedure, a cross-cancer benchmark, and a tested
@@ -218,7 +221,7 @@ readme = f"""# CMPB 投稿包说明
 - 候选多样性、进入效应、六 OS 子集、模拟细节移入 Supplementary
 - 跨划分稳定性图（原 Fig. 3）移为 Supplementary Fig. S1
 - Limitations 作为 Discussion 的编号小节保留
-- 参考文献按首次出现顺序重编为 1–17
+- 参考文献按首次出现顺序重编为 1–{n_ref}
 
 ## 作者信息（已填）
 

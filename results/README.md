@@ -9,6 +9,9 @@
   - `25_simulation_final_replicates.tsv` — simulation replicates
   - `26_signature_tasks.tsv`, `26_signature_summary.tsv` — published-signature module
   - `29_baseline_sensitivity.tsv` — three fixed references
+  - `47_*` — non-degenerate-reference stratification (all vs non-constant LASSO)
+  - `48_*` — validation-prediction duplicate-collapse sensitivity
+  - `49_*` — prediction-level interface consistency check and reference switch
   - `31_*`, `32_*`, `36_*` — METABRIC metrics, sensitivity and re-verification
 - `manifest/` — candidate-pool diversity tables.
 

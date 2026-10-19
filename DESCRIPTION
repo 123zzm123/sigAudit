@@ -9,8 +9,11 @@ Description: Implements reference-adjusted gain accounting for omics prognostic
     partitions, it computes `Gv` (validation gain over a fixed reference), `Gt`
     (held-out gain) and `Orel = Gv - Gt` (reference-adjusted selection optimism),
     and compares selection rules (argmax, top-k ensembles, resampling remedies)
-    on a common task set. It separates selection on a noisy criterion from
-    comparison against a weak baseline, and keeps `Oraw` distinct from `Orel`.
+    on a common task set. `audit_predictions()` runs the accounting directly from
+    per-candidate validation and test risk scores, with constant and duplicate
+    diagnostics and stratified summaries, and without retraining. It separates
+    selection on a noisy criterion from comparison against a weak baseline, and
+    keeps `Oraw` distinct from `Orel`.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Depends: R (>= 4.1.0)

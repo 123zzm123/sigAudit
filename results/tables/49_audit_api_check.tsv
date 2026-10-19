@@ -1,0 +1,12 @@
+item	value	pass
+expected_records	40675	TRUE
+actual_records	40675	TRUE
+duplicated_keys	0	TRUE
+missing_records	0	TRUE
+max_abs_diff_Cv	5.55111512312578e-16	TRUE
+max_abs_diff_Ct	5.55111512312578e-16	TRUE
+max_abs_diff_Gv	4.9960036108132e-16	TRUE
+max_abs_diff_Gt	4.9960036108132e-16	TRUE
+max_abs_diff_Orel	4.9960036108132e-16	TRUE
+winner_agreement	1	TRUE
+members_agreement	1	TRUE

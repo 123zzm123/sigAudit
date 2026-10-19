@@ -79,6 +79,11 @@ TABLES = [
     "29_baseline_sensitivity.tsv",
     "31_metabric_model_metrics.tsv", "31_metabric_rule_performance.tsv",
     "32_metabric_baseline_sensitivity.tsv", "36_metabric_prediction_check.tsv",
+    "47_nonconstant_overall.tsv", "47_nonconstant_by_cohort.tsv",
+    "48_dedup_summary.tsv", "48_dedup_by_cohort.tsv",
+    "48_dedup_per_task.tsv", "48_dedup_performance_long.tsv",
+    "49_audit_api_check.tsv", "49_audit_api_reference_switch.tsv",
+    "49_audit_api_dedup.tsv",
 ]
 MANIFEST = ["candidate_diversity.tsv", "candidate_top5_dup.tsv"]
 
@@ -109,8 +114,11 @@ new_desc = ('Description: Implements reference-adjusted gain accounting for omic
             '    partitions, it computes `Gv` (validation gain over a fixed reference), `Gt`\n'
             '    (held-out gain) and `Orel = Gv - Gt` (reference-adjusted selection optimism),\n'
             '    and compares selection rules (argmax, top-k ensembles, resampling remedies)\n'
-            '    on a common task set. It separates selection on a noisy criterion from\n'
-            '    comparison against a weak baseline, and keeps `Oraw` distinct from `Orel`.')
+            '    on a common task set. `audit_predictions()` runs the accounting directly from\n'
+            '    per-candidate validation and test risk scores, with constant and duplicate\n'
+            '    diagnostics and stratified summaries, and without retraining. It separates\n'
+            '    selection on a noisy criterion from comparison against a weak baseline, and\n'
+            '    keeps `Oraw` distinct from `Orel`.')
 desc = re.sub(r'Description:.*?(?=\nLicense:)', new_desc, desc, flags=re.S) if False else desc
 # 用显式行替换 Description 块
 lines = desc.splitlines()
@@ -236,6 +244,9 @@ io.open(os.path.join(OUT, "results", "README.md"), "w", encoding="utf-8", newlin
   - `25_simulation_final_replicates.tsv` — simulation replicates
   - `26_signature_tasks.tsv`, `26_signature_summary.tsv` — published-signature module
   - `29_baseline_sensitivity.tsv` — three fixed references
+  - `47_*` — non-degenerate-reference stratification (all vs non-constant LASSO)
+  - `48_*` — validation-prediction duplicate-collapse sensitivity
+  - `49_*` — prediction-level interface consistency check and reference switch
   - `31_*`, `32_*`, `36_*` — METABRIC metrics, sensitivity and re-verification
 - `manifest/` — candidate-pool diversity tables.
 
@@ -265,8 +276,12 @@ For a candidate pool evaluated on a validation and a held-out test partition:
 | `Orel` | `Gv − Gt` | reference-adjusted selection optimism |
 | `Oraw` | `Cv(rule) − Ct(rule)` | rule's own validation–test difference; never conflated with `Orel` |
 
-`audit_rules()` compares selection rules (argmax, top-k ensembles, resampling remedies) on a
-common task set; `audit_selection()` performs the paired accounting for a single rule.
+`audit_rules()` and `audit_selection()` work from a matrix of per-candidate C-indices.
+`audit_predictions()` works directly from the per-candidate validation and test **risk scores**
+that a training pipeline has already produced, and returns candidate- and rule-level metrics,
+the gain accounting, constant and duplicate diagnostics, and the stratified summary. It covers
+the fixed reference, validation argmax and the top-k ensembles, so the full rule comparison can
+be run on new predictions without retraining any model.
 
 ## Install
 
@@ -288,14 +303,30 @@ res <- audit_rules(V, Tt, reference = "Lasso")
 res$table   # rule, n, reported, test, Gv, Gt, Orel, Oraw
 ```
 
+To audit risk scores that a training pipeline has already produced, without retraining:
+
+```r
+tasks <- list(list(val_pred = Vrisk, test_pred = Trisk,   # rows = patients, cols = candidates
+                   time_val = tv, event_val = ev,         # validation outcomes
+                   time_test = tt, event_test = et))      # held-out outcomes
+res2 <- audit_predictions(tasks, reference = "Lasso")
+res2$summary          # Cv/Ct/Gv/Gt/Orel per rule, against the fixed reference
+res2$diagnostics      # constant and duplicate candidate diagnostics
+```
+
 `audit_rules()` covers the selection-type rules (no selection, validation argmax, runner-up,
-non-reference argmax). Top-k ensembles and the resampling remedies need per-candidate risk
-scores rather than C-index matrices, and are implemented in the accompanying analysis scripts
-under `scripts/`.
+non-reference argmax) from C-index matrices. `audit_predictions()` takes risk scores and covers
+the top-k ensembles and resampling remedies as well; it reproduces the pipeline's task-level
+values to machine precision on the frozen predictions. The analysis scripts under `scripts/`
+remain the reference implementation of the full study pipeline. A self-contained, installed
+example for the prediction-level entry is available at
+`system.file('examples', 'audit_predictions_minimal.R', package = 'sigAudit')`.
 
 The package ships assertion-based tests covering column-order invariance of tie-breaking,
 row-identity checking, rejection of out-of-range C-indices, and the identity between the
-comparable-pair count and `concordant + discordant + tied.x`.
+comparable-pair count and `concordant + discordant + tied.x`. Additional tests target
+`audit_predictions()` edge cases: `top_k` registration, family rules, unknown-rule errors,
+cohort weighting when splits have unequal task counts, event coding, and the common patient mask.
 
 ## Reproducing the study
 
@@ -330,7 +361,7 @@ data/README.md          how to obtain the public data
 
 ## Citation
 
-If you use this software, please cite the accompanying article (under review). A
+If you use this software, please cite the accompanying manuscript. A
 `CITATION.cff` file is included; it will be updated with the DOI on publication.
 
 ## License

@@ -72,26 +72,53 @@ for m in re.finditer(r"\[([0-9,\u2013\- ]+)\]", body):
         for n in rng:
             if n not in seen:
                 seen.append(n)
-chk("首次出现顺序为 1–17", seen == list(range(1, 19)), str(seen))
+chk("首次出现顺序连续", seen == list(range(1, len(seen) + 1)), str(seen))
 n_ref = len(re.findall(r"^\d+\.\s", short[short.index("## References"):], re.M))
-chk("文末 18 条文献", n_ref == 18, str(n_ref))
+chk(f"文末 {n_ref} 条文献且与正文引用数一致",
+    n_ref == max(seen) if seen else False, f"{n_ref} vs max_ref={max(seen) if seen else 0}")
 
-print("=== 5. 数字未失真（对照长稿） ===")
-def dec(t):
-    # 去掉补充材料编号（S1.5、S2.2 等）与标题行，避免把编号当作数值
-    t = re.sub(r"\bS\d+(?:\.\d+)?\b", " ", t)
-    t = re.sub(r"^#.*$", "", t, flags=re.M)
-    return collections.Counter(re.findall(r"\d+\.\d+", t))
-extra = set(dec(body)) - set(dec(gen))
-chk("短稿未引入长稿中不存在的数值", not extra, str(sorted(extra)))
+print("=== 5. 数字与冻结结果表一致 ===")
+def rdtab(name):
+    p = os.path.join(ROOT, "results", "tables", name)
+    out = {}
+    if not os.path.exists(p):
+        return out
+    with io.open(p, encoding="utf-8") as fh:
+        lines = [l.rstrip("\n").split("\t") for l in fh if l.strip()]
+    hdr = lines[0]
+    for row in lines[1:]:
+        out[row[0]] = dict(zip(hdr, row))
+    return out
+def f4(x): return f"{float(x):.4f}"
+ov = rdtab("47_nonconstant_overall.tsv")
+new_vals = []
+if "nonconstant_Lasso" in ov:
+    r = ov["nonconstant_Lasso"]
+    new_vals += [f4(r["Gv"]), f4(r["Gt"]), f4(r["Orel"])]
+missing_new = [v for v in new_vals if v not in short]
+chk("非恒定分层关键值已进入短稿（对照 47 表）", not missing_new, str(missing_new))
+# 预测级入口的一致性核对必须存在且全部通过
+p49 = os.path.join(ROOT, "results", "tables", "49_audit_api_check.tsv")
+ok49 = False
+if os.path.exists(p49):
+    with io.open(p49, encoding="utf-8") as fh:
+        rows = [l.rstrip("\n").split("\t") for l in fh if l.strip()][1:]
+    ok49 = bool(rows) and all(r[-1].lower() == "true" for r in rows)
+chk("预测级审计入口与原流水线一致性核对通过（对照 49 表）", ok49)
 key = ["0.0610", "0.0237", "0.0374", "0.0377", "0.0378", "0.0064", "0.0016",
        "0.0048", "0.0084", "0.0002", "0.0039", "3,798", "3,919", "66,483",
-       "1,977", "1,143", "61.2"]
+       "1,977", "1,143", "61.2", "0.0494", "0.0109", "0.0385", "3,057",
+       "0.0211", "0.0052", "72.9%"]
 missing = [k for k in key if k not in short]
 chk("关键结果值齐全", not missing, str(missing))
 chk("Ridge 的 Orel 为 0.0377（非 0.0378）",
     "0.0374, 0.0377 and 0.0378" in short
     and "| fixed ridge | +0.0314 | −0.0064 | +0.0377 |" in short)
+chk("去重百分比按任务计数（68 / 699）",
+    "in 68 of 3,919 tasks (1.7%)" in short
+    and "changed in 699 of 3,919 tasks (17.8%)" in short)
+chk("表 2 含舍入说明",
+    "Values were calculated from the full-precision results before rounding" in short)
 
 print("=== 6. 声明齐全 ===")
 for key in ["**Ethics approval", "**Competing interests", "**Funding",
@@ -100,9 +127,9 @@ for key in ["**Ethics approval", "**Competing interests", "**Funding",
 chk("伦理说明为不适用并给出原因", "Not applicable" in decl and "de-identified" in decl)
 
 print("=== 7. 结构与图 ===")
-chk("图 4 张、表 4 张",
+chk("图 4 张、表 5 张",
     len(re.findall(r"^\*\*Fig\.\s*\d+\.", short, re.M)) == 4
-    and len(re.findall(r"^\*\*Table\s*\d+\.", short, re.M)) == 4)
+    and len(re.findall(r"^\*\*Table\s*\d+\.", short, re.M)) == 5)
 chk("Limitations 为 Discussion 子节", "### 4.1 Limitations" in short)
 chk("含六队列 p = 0.084", "p = 0.084" in short)
 

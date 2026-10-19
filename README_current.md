@@ -1,6 +1,6 @@
 # README_current —— 当前状态（自动生成，请以本文件为准）
 
-生成时间：**2026-10-18 16:36:39（时区 CST）**
+生成时间：**2026-10-19 14:03:41（时区 CST）**
 本文件由 `scripts/27_status_readme.R` 从实际产物生成；**不要手工编辑**。
 
 ## 1. 唯一正式管线（只有这一条）
@@ -14,6 +14,9 @@
 共用函数库   scripts/_lib_analysis.R              （20 与 29 共用，杜绝口径漂移）
 辅助分析     scripts/21_entry_predictors.R        （进入效应 + 留一癌种敏感性）
 基线敏感性   scripts/29_baseline_sensitivity.R    （Ridge / Enet0.5，第三轮审查后新增）
+非恒定诊断   scripts/47_nonconstant_diagnostic.R  （非恒定 LASSO 分层；本次修订新增）
+去重敏感性   scripts/48_dedup_sensitivity.R       （验证预测去重；本次修订新增）
+预测级审计   scripts/49_audit_prediction_api.R   （R/audit_predictions.R 一致性核对）
 现实任务     scripts/26a_extract_public_signatures.R -> 26b_public_signature_tasks.R
 模拟         scripts/25_simulation.R pilot|final
 图表         scripts/13_figures.R                 （v3：比例/裁切/COADREAD/oracle 已修）
@@ -48,6 +51,10 @@
 | `R/utils.R` | `26918b936f` |
 | `R/audit_selection.R` | `bdcd9e6323` |
 | `R/audit_modules.R` | `d847db14c8` |
+| `R/audit_predictions.R` | `2d78a00f30` |
+| `scripts/47_nonconstant_diagnostic.R` | `41b10b1c93` |
+| `scripts/48_dedup_sensitivity.R` | `c5967b3618` |
+| `scripts/49_audit_prediction_api.R` | `e8911d13b7` |
 | `R/sigAudit.R` | `8ea470e960` |
 
 ## 3. 正式主实验：完成情况
@@ -81,13 +88,17 @@
 
 本节的每一条都由脚本按**文件是否真的存在**生成，不再手写进度。
 
-- [ ] 正文成稿（Methods / Results / Discussion）—— 当前只有提纲，**不能算论文已完成**
+- [x] 正文成稿（Methods / Results / Discussion）—— 短稿 `docs/paper_cmpb_short.md` 已成稿（摘要 248 词、正文 2,987 词）
 - [ ] 投稿期刊、分区体系与 APC 需**官方来源核验**（见 `docs/journal_check.md`）
 - [ ] LGG / PAAD 的 PFS 终点**时间起点**未能独立核实（门户元数据未给出）
 - [ ] 下载日期与批次失败清单未在数据文件中记录
-- [ ] `S3`（家族对比）主张已**撤下**，偏离记录见 `config/frozen_analysis_plan.md`
-- [ ] `grade_credibility()` 已移除 A–D 字母评级；optimism / transport / concordance
+- [x] `S3`（家族对比）主张已**撤下**，偏离记录见 `config/frozen_analysis_plan.md`
+- [x] `grade_credibility()` 已移除 A–D 字母评级；optimism / transport / concordance
       三个模块已标为 **experimental 并移出默认入口**，未参与本文任何结论
+- [x] 公开仓库 `https://github.com/123zzm123/sigAudit` 已导出（代码、配置、结果表；
+      **不含**全量逐患者预测与原始表达矩阵）
+- [ ] 本次修订新增的三个模块（非恒定分层、去重、预测级入口）为**事后诊断**，
+      已在正文标注；正式提交与对外发信仍需作者执行
 
 ## 6. 当前可提供的文件
 
@@ -113,6 +124,11 @@
 - `results/figures/fig5_metabric.png` （存在）
 - `results/tables/36_metabric_prediction_check.tsv` （存在）
 - `results/tables/25_simulation_final_replicates.tsv` （存在）
+- `results/tables/47_nonconstant_overall.tsv` （存在）
+- `results/tables/48_dedup_summary.tsv` （存在）
+- `results/tables/49_audit_api_check.tsv` （存在）
+- `docs/paper_cmpb_short.md` （存在）
+- `R/audit_predictions.R` （存在）
 - `results/figures/fig_captions.md` （存在）
 - `reproduce_current.sh` （存在）
 
