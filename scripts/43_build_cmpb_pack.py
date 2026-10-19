@@ -136,7 +136,7 @@ reproducibility
 - Main text (Introduction to Data and code availability): {W_BODY} words (limit 3,500)
 - Figures: {n_fig} · Tables: {n_tab} · References: {n_ref} (limit 50)
 - Highlights: {len(HIGHLIGHTS)} bullets, each ≤ 85 characters
-- Supplementary: Supplementary Methods, Supplementary Results, Supplementary Fig. S1, S-tables
+- Supplementary: Supplementary Methods, Supplementary Results, Supplementary Figs. S1–S3, 29 S-tables
 
 **Declarations**
 

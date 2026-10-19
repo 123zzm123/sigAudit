@@ -422,6 +422,7 @@ abstract: >-
 total = 0
 nfiles = 0
 for root, dirs, fs in os.walk(OUT):
+    dirs[:] = [d for d in dirs if d != ".git"]
     for f in fs:
         total += os.path.getsize(os.path.join(root, f))
         nfiles += 1
