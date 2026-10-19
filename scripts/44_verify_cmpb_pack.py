@@ -4,7 +4,7 @@
 44 — 校验 CMPB 短稿：硬性要求、引用顺序、数字未失真、声明齐全
 判据来自官方 Guide for Authors（2026-10-18 版），不自行发明规则。
 """
-import io, os, re, sys, collections
+import io, os, re, sys, glob, collections
 
 ROOT = os.environ.get("SIGAUDIT_ROOT", "D:/bioinfo/sigAudit")
 GEN   = os.path.join(ROOT, "docs", "paper_draft.md")          # 长稿：数字母本
@@ -138,6 +138,13 @@ chk("含搜索规模曲线一节与 Fig. 5",
 chk("含实时软件示例与 BBC-CV 相关工作",
     "A packaged real-data example audits a stored METABRIC task" in short
     and "Bootstrapping the out-of-sample predictions" in short)
+_figfiles = os.path.join(CMPB, "figures")
+for _n in range(1, 6):
+    chk(f"投稿包 figures/ 有 Fig. {_n} 的 PDF 与 PNG",
+        bool(glob.glob(os.path.join(_figfiles, f"fig{_n}_*.pdf")))
+        and bool(glob.glob(os.path.join(_figfiles, f"fig{_n}_*.png"))))
+chk("投稿包 figures/ 只有 5 组图文件",
+    len([f for f in glob.glob(os.path.join(_figfiles, "*")) if f.endswith(".png")]) == 5)
 
 print("=== 8. 文字卫生 ===")
 for name, txt in [("short", short), ("manuscript", man), ("title page", tp),

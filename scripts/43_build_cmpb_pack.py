@@ -12,7 +12,7 @@
 此前的版本会从长稿重新生成摘要，导致已确认的短稿被覆盖（v15 实际发生过）。
 现在改为：脚本只读不写正文，正文由作者/agent 直接维护。
 """
-import io, os, re, sys
+import io, os, re, shutil, sys
 
 ROOT = os.environ.get("SIGAUDIT_ROOT", "D:/bioinfo/sigAudit")
 DOCS = os.path.join(ROOT, "docs")
@@ -256,6 +256,36 @@ files = {
 for name, text in files.items():
     with io.open(os.path.join(OUT, name), "w", encoding="utf-8", newline="\n") as fh:
         fh.write(text)
+
+# ---------- 同步图文件（results -> 投稿包，按手稿图号命名）----------
+# 历史遗留：results/figures 的文件名比手稿图号大 1（fig4_rule_pairing 是手稿 Fig. 3，
+# fig5_metabric 是手稿 Fig. 4），补充图 fig3_cross_split 是图 S1 由补充材料目录维护。
+FIGMAP = {
+    "fig1_design":            "fig1_design",            # 手稿 Fig. 1
+    "fig2_gain_decomposition": "fig2_gain_decomposition",  # 手稿 Fig. 2
+    "fig4_rule_pairing":      "fig3_rule_pairing",       # 手稿 Fig. 3
+    "fig5_metabric":          "fig4_metabric",           # 手稿 Fig. 4
+    "fig5_search_budget":     "fig5_search_budget",      # 手稿 Fig. 5（本轮新增）
+}
+FIGSRC = os.path.join(ROOT, "results", "figures")
+FIGOUT = os.path.join(OUT, "figures")
+os.makedirs(FIGOUT, exist_ok=True)
+fig_missing = []
+for src_stem, dst_stem in FIGMAP.items():
+    for ext in (".pdf", ".png"):
+        a = os.path.join(FIGSRC, src_stem + ext)
+        if not os.path.exists(a):
+            fig_missing.append(src_stem + ext)
+            continue
+        shutil.copy2(a, os.path.join(FIGOUT, dst_stem + ext))
+if fig_missing:
+    print("投稿包图文件缺失:")
+    for x in fig_missing:
+        print("  -", x)
+    sys.exit(1)
+if len(FIGMAP) != n_fig:
+    print(f"图数量不一致: 图注 {n_fig} 张, 映射 {len(FIGMAP)} 张")
+    sys.exit(1)
 
 print(f"输出: {OUT}")
 print(f"摘要 {W_ABS} 词；正文 {W_BODY} 词；图 {n_fig}；表 {n_tab}；文献 {n_ref}")
