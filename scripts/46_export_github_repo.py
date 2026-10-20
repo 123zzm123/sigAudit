@@ -89,11 +89,13 @@ TABLES = [
     "50_search_budget_check.tsv",
     "29_paired_vs_fixed.tsv",
     "52_uno_task.tsv", "52_uno_by_cohort.tsv", "52_uno_summary.tsv",
-    "52_uno_support.tsv", "52_uno_check.tsv",
+    "52_uno_support.tsv", "52_uno_check.tsv", "52_uno_by_cell.tsv",
+    "52_uno_by_signature.tsv", "52_uno_attrition.tsv",
     "53_brca_signature_tasks.tsv", "53_same_signature_groups.tsv",
     "53_same_signature_by_signature.tsv", "53_same_signature_tasks_all.tsv",
-    "53_signature_gene_overlap.tsv",
+    "53_signature_gene_overlap.tsv", "53_selection_change.tsv", "53_split_identity.tsv",
     "54_uno_compact.tsv", "54_same_signature_compare.tsv",
+    "55_uno_validation.tsv", "55_uno_cases.tsv", "55_uno_params.tsv", "55_uno_r_values.tsv",
     "49_audit_api_check.tsv", "49_audit_api_reference_switch.tsv",
     "49_audit_api_dedup.tsv",
 ]
@@ -270,6 +272,7 @@ io.open(os.path.join(OUT, "results", "README.md"), "w", encoding="utf-8", newlin
   - `52_*` — censoring-weighted (Uno/IPCW) concordance at a fixed five-year horizon
   - `53_*` — signature-matched comparison (TCGA-BRCA and METABRIC, same six signatures)
   - `54_*` — compact summary tables assembled from the above without recomputation
+  - `55_*` — same-definition check of the IPCW estimator against an independent Python implementation
   - `31_*`, `32_*`, `36_*` — METABRIC metrics, sensitivity and re-verification
 - `manifest/` — candidate-pool diversity tables.
 
@@ -393,7 +396,7 @@ R/                     package source
 man/, NAMESPACE         package documentation and exports
 tests/                  assertion-based tests
 scripts/                analysis pipeline (numbered by stage)
-config/                 frozen analysis plans (fixed before the runs)
+config/                 analysis plans (frozen before the main runs; revision settings are marked as written after the fact)
 results/figures         final figures and figure data
 results/tables          result tables used in the manuscript
 data/README.md          how to obtain the public data

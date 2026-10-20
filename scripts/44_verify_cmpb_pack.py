@@ -125,9 +125,10 @@ chk("主表不再列 p，改指向补充表 S31",
     and bool(re.search(r"\| Comparison \| ΔCt vs reference \| 95% CI \|", short)))
 chk("新增两段补强分析与对应表号",
     "### 3.7 Two checks of the comparison layer" in short
-    and "Supplementary Table S34" in _flat5 and "Supplementary Table S32" in _flat5)
+    and "Supplementary Table S34" in _flat5 and "Supplementary Tables S31 and S32" in _flat5)
 chk("Uno 结果与同签名结果写入正文",
-    "+0.0253" in short and "+0.0291" in short and "−0.0093" in short and "+0.0002" in short)
+    "+0.0253" in short and "+0.0290" in short
+    and ("-0.0093" in short or "−0.0093" in short) and "+0.0002" in short)
 chk("近零不等于等效的表述",
     "are near zero and do not establish equivalence" in _flat5)
 chk("常数预测表述改为全零系数",
@@ -199,15 +200,20 @@ _supdir = os.path.join(CMPB, "06_supplementary")
 _suptab = os.path.join(_supdir, "tables")
 for _f, _n in [("fixed_reference_paired.tsv", 45), ("uno_sensitivity.tsv", 9),
                ("uno_task.tsv", 2977), ("same_signature_compare.tsv", 15),
-               ("same_signature_tasks.tsv", 555)]:
+               ("same_signature_tasks.tsv", 555), ("uno_support.tsv", 60),
+               ("uno_attrition.tsv", 31), ("uno_validation.tsv", 15),
+               ("uno_validation_cases.tsv", 2611),
+               ("same_signature_selection_change.tsv", 30),
+               ("same_signature_split_identity.tsv", 5),
+               ("same_signature_gene_overlap.tsv", 6)]:
     _p = os.path.join(_suptab, _f)
     _rows = 0
     if os.path.exists(_p):
         with io.open(_p, encoding="utf-8") as _fh:
             _rows = sum(1 for _l in _fh if _l.strip()) - 1
     chk(f"补充表 {_f} 存在且行数为 {_n}", _rows == _n, str(_rows))
-chk("补充目录写三十五张表",
-    "Thirty-five tables" in io.open(os.path.join(_supdir, "00_contents.md"), encoding="utf-8").read())
+chk("补充目录写四十二张表",
+    "Forty-two tables" in io.open(os.path.join(_supdir, "00_contents.md"), encoding="utf-8").read())
 _s1 = io.open(os.path.join(_supdir, "S1_methods.md"), encoding="utf-8").read()
 _s2 = io.open(os.path.join(_supdir, "S2_results.md"), encoding="utf-8").read()
 chk("补充方法含 S1.8 与 S1.9",
@@ -217,6 +223,22 @@ chk("补充结果含 S2.11 与 S2.12",
 _s1f = re.sub(r"\s+", " ", _s1)
 chk("补充方法写明 tau 与训练侧删失分布",
     "tau = 60 months" in _s1f and "training partition" in _s1f and "G_train(tau) >= 0.05" in _s1f)
+chk("S1.8 写明按队列×划分的支持规则与层级汇总",
+    "cohort-by-split level" in _s1f and "tasks, then splits within a cohort, then cohorts" in _s1f)
+chk("S1.8 区分同定义核对与删失来源差异",
+    "same definition" in _s1f and "not the same definition" in _s1f and "1.5e-14" in _s1f)
+chk("S1.9 写明划分一致性、并列规则与验证集常数定义",
+    "Split identity" in _s1f and "Tie-breaking" in _s1f and "validation predictions are" in _s1f)
+_s2f = re.sub(r"\s+", " ", _s2)
+chk("S2.11 写明 2,947 与事件规则未额外排除",
+    "2,947 entered the analysis" in _s2f and "excluded no additional task" in _s2f)
+chk("S2.11 弹性网方向为 argmax - Enet = +0.0206",
+    "+0.0206" in _s2f and "elastic net itself was +0.0046 above" in _s2f)
+chk("S2.11 说明宏观序保持、单队列方向改变",
+    "preserved the ordering of the macro averages" in _s2f
+    and "LUAD +0.0008" in _s2f and "LUAD was -0.0023" in _s2f)
+chk("S2.12 基因数范围为 11 到 99 且不称癌种差异",
+    "from 11 to 99 genes" in _s2f and "cancer type" not in _s2f)
 
 print("\n" + "=" * 52)
 print(f"通过 {len(passes)} 项，失败 {len(fails)} 项")

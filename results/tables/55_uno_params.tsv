@@ -1,0 +1,9 @@
+dataset	tau	models	note
+all_equal_scores	60	s1	all risk scores identical; C must be 0.5
+perfect_concordance	60	s1	earlier event has higher score; C must be 1
+perfect_discordance	60	s1	earlier event has lower score; C must be 0
+tied_scores	60	s1	tied scores contribute 0.5
+tied_times	60	s1,s2	tied event times are not comparable; strict T_i < T_j
+tau_boundary	60	s1	event at exactly tau is excluded; strictly below is included
+random_half_censored	60	s1,s2,s3	three score vectors on the same test set
+real_BRCA_task	60	lasso,ridge,enet05,argmax,top5	BRCA seed 20261014, geneset GOBP_NEGATIVE_REGULATION_OF_EXTRINSIC_APOPTOTIC_SIGNALING_PATHWAY_VIA_DEATH_DOMAIN_RECEPTORS; winner RSF100

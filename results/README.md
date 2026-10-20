@@ -23,6 +23,7 @@
   - `52_*` — censoring-weighted (Uno/IPCW) concordance at a fixed five-year horizon
   - `53_*` — signature-matched comparison (TCGA-BRCA and METABRIC, same six signatures)
   - `54_*` — compact summary tables assembled from the above without recomputation
+  - `55_*` — same-definition check of the IPCW estimator against an independent Python implementation
   - `31_*`, `32_*`, `36_*` — METABRIC metrics, sensitivity and re-verification
 - `manifest/` — candidate-pool diversity tables.
 

@@ -1,0 +1,16 @@
+dataset	model	n_pairs	n_events	uno_r
+all_equal_scores	s1	2772	45	0.5
+perfect_concordance	s1	4740	79	1
+perfect_discordance	s1	4740	79	0
+tied_scores	s1	4752	60	0.40727774306167
+tied_times	s1	36	5	1
+tied_times	s2	36	5	0
+tau_boundary	s1	21	2	1
+random_half_censored	s1	4945	53	0.547535542714965
+random_half_censored	s2	4945	53	0.466660626283538
+random_half_censored	s3	4945	53	0.448739052823084
+real_BRCA_task	lasso	3822	26	0.5
+real_BRCA_task	ridge	3822	26	0.486791753612203
+real_BRCA_task	enet05	3822	26	0.5
+real_BRCA_task	argmax	3822	26	0.545856605295662
+real_BRCA_task	top5	3822	26	0.545781791187107

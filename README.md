@@ -113,7 +113,7 @@ R/                     package source
 man/, NAMESPACE         package documentation and exports
 tests/                  assertion-based tests
 scripts/                analysis pipeline (numbered by stage)
-config/                 frozen analysis plans (fixed before the runs)
+config/                 analysis plans (frozen before the main runs; revision settings are marked as written after the fact)
 results/figures         final figures and figure data
 results/tables          result tables used in the manuscript
 data/README.md          how to obtain the public data

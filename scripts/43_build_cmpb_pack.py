@@ -357,17 +357,32 @@ TABMAP = {
     "results/tables/52_uno_task.tsv":                          "uno_task.tsv",
     "results/tables/54_same_signature_compare.tsv":            "same_signature_compare.tsv",
     "results/tables/53_same_signature_tasks_all.tsv":          "same_signature_tasks.tsv",
+    "results/tables/52_uno_support.tsv":                       "uno_support.tsv",
+    "results/tables/52_uno_attrition.tsv":                     "uno_attrition.tsv",
+    "results/tables/55_uno_validation.tsv":                    "uno_validation.tsv",
+    "results/tables/55_uno_cases.tsv":                         "uno_validation_cases.tsv",
+    "results/tables/53_selection_change.tsv":                  "same_signature_selection_change.tsv",
+    "results/tables/53_split_identity.tsv":                    "same_signature_split_identity.tsv",
+    "results/tables/53_signature_gene_overlap.tsv":            "same_signature_gene_overlap.tsv",
 }
 SUPT = os.path.join(SUPOUT, "tables")
 os.makedirs(SUPT, exist_ok=True)
 tab_missing = []
+# 2026-10-20 第二轮修订：以下四张表的列做过有意的结构性修改
+#   uno_sensitivity.tsv          增加 n_seeds / argmax−Enet 列，支持信息改为按 split 的范围
+#   uno_task.tsv                 增加 argmax−Enet / top5−Enet 等显式命名字段
+#   same_signature_compare.tsv   增加 signature 列
+#   same_signature_tasks.tsv     增加 lasso_constant_val、d_* 字段
+# 仅为这四张表放行表头变化；其余表仍要求表头与已交付文件完全一致。
+TAB_REVISED = {"uno_sensitivity.tsv", "uno_task.tsv",
+               "same_signature_compare.tsv", "same_signature_tasks.tsv"}
 for src_rel, dst_name in TABMAP.items():
     a = os.path.join(ROOT, src_rel)
     if not os.path.exists(a):
         tab_missing.append(src_rel)
         continue
     b = os.path.join(SUPT, dst_name)
-    if os.path.exists(b):
+    if os.path.exists(b) and dst_name not in TAB_REVISED:
         with io.open(a, encoding="utf-8") as fah, io.open(b, encoding="utf-8") as fbh:
             if fah.readline() != fbh.readline():
                 tab_missing.append(src_rel + "  (表头与已交付 %s 不一致)" % dst_name)
