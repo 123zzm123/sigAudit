@@ -32,8 +32,9 @@ repeatedly and are not requested here).
    results (`res$summary`, `res$diagnostics`, `res$rules`).
 2. Switching the fixed reference from `Lasso` to `Ridge` leaves the selected candidate's `Cv`
    and `Ct` unchanged for `argmax_val` and `top5_ensemble` (the candidate pool is the same),
-   while `none` *is* the reference and so its `Cv`/`Ct` change with it; `Gv`, `Gt` and `Orel`
-   move with the reference for every rule.
+   while `none` *is* the reference and so its `Cv`/`Ct` change with it. For `argmax_val` and
+   `top5_ensemble`, the gains and `Orel` change with the reference; for `none`, they remain zero
+   by definition.
 
 ## Data
 

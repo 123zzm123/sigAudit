@@ -143,7 +143,7 @@ _flat = re.sub(r"\s+", " ", short)
 _hlflat = re.sub(r"\s+", " ", hl)
 chk("摘要写出 TCGA 搜索规模模式与 METABRIC 近零",
     "expanding the candidate pool increased validation gains" in _flat
-    and "ridge-anchored gains near zero" in _flat)
+    and "ridge-anchored gains remained near zero" in _flat)
 chk("引言把搜索规模问题写入研究目的",
     "how that gain changes as the candidate pool expands" in _flat
     and "reference-anchored search budgets" in _flat)

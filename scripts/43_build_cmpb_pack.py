@@ -178,12 +178,13 @@ the procedure can be reused on other omics endpoints.
 0.0374). The relative unmet fraction was reference-dependent (61% against a fixed LASSO, above
 100% against a fixed ridge), whereas the absolute magnitude was similar across references. In a
 post-hoc comparator analysis, a single fixed ridge regression matched or exceeded validation-set
-selection in all eight cohorts, while the pre-specified top-five ensemble remained below it. The
-pattern persisted in diagnostic analyses restricted to tasks where the LASSO reference was not
-degenerate and after exactly duplicated candidates were removed. Post-hoc search-budget curves
-showed that held-out gains flatten as the pool grows while validation gains keep rising. The
-independent cohort again
-showed that the apparent value of search depends on the comparator.
+selection in all eight cohorts, while the pre-specified top-five ensemble remained below it on
+average. The pattern persisted in diagnostic analyses restricted to tasks where the LASSO
+reference was not degenerate and after exactly duplicated candidates were removed. Post-hoc
+search-budget curves showed that, in TCGA, expanding the candidate pool increased validation gains
+while held-out gains plateaued from a fixed LASSO start and became increasingly negative from a
+fixed ridge start. In METABRIC, ridge-anchored held-out gains remained near zero. The independent
+cohort again showed that the apparent value of search depends on the comparator.
 
 **Why we believe it fits the journal.** The contribution is a computational workflow and its
 systematic evaluation: a paired accounting procedure, a cross-cancer benchmark, and a tested
