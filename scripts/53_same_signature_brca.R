@@ -94,30 +94,18 @@ if (file.exists(PRED_F) && Sys.getenv("SIG53_REFIT", "0") != "1") {
 
 ## ---------- B：指标（两种并列规则对照） ----------
 say(""); say("===== 组 B 指标 =====")
-BT <- list(); SEL <- list()
+BT <- list()
 for (p in PRED) {
   mods <- colnames(p$val_pred)
   V <- vapply(mods, function(m) ci_direct(p$t_val, p$e_val, p$val_pred[, m]), numeric(1)); names(V) <- mods
   Tt <- vapply(mods, function(m) ci_direct(p$t_test, p$e_test, p$test_pred[, m]), numeric(1)); names(Tt) <- mods
   if (!all(is.finite(V)) || !all(is.finite(Tt))) next
 
-  prio_new <- make_prio(mods, p$seed)                 # A/C 组同一规则
-  set.seed(p$seed); prio_old <- runif(length(mods)); names(prio_old) <- mods   # 26b 旧写法
-
-  wn <- mods[pick_max(V, prio_new[mods])]; wo <- mods[pick_max(V, prio_old[mods])]
-  t5n <- mods[order_rule(V, prio_new[mods])[seq_len(min(5, length(mods)))]]
-  t5o <- mods[order_rule(V, prio_old[mods])[seq_len(min(5, length(mods)))]]
+  prio <- make_prio(mods, p$seed)                    # 与 A/C 组同一规则
+  wn <- mods[pick_max(V, prio[mods])]
+  t5n <- mods[order_rule(V, prio[mods])[seq_len(min(5, length(mods)))]]
   ens_n <- ens_pred(p$val_pred, p$test_pred, t5n)
-  ens_o <- ens_pred(p$val_pred, p$test_pred, t5o)
   ct5n <- ci_direct(p$t_test, p$e_test, ens_n$t)
-  ct5o <- ci_direct(p$t_test, p$e_test, ens_o$t)
-
-  SEL[[length(SEL) + 1]] <- data.frame(signature = p$signature, seed = p$seed,
-    winner_old = wo, winner_new = wn, winner_changed = wo != wn,
-    top5_old = paste(t5o, collapse = "|"), top5_new = paste(t5n, collapse = "|"),
-    top5_changed = !setequal(t5o, t5n), dCt_argmax = Tt[[wn]] - Tt[[wo]],
-    dCt_top5 = ct5n - ct5o, dGv = (V[[wn]] - V[[wo]]),
-    n_tied_max = sum(V == max(V)))
 
   r5 <- if ("Ridge" %in% mods) Tt[["Ridge"]] else NA_real_
   e5 <- if ("Enet0.5" %in% mods) Tt[["Enet0.5"]] else NA_real_
@@ -135,11 +123,8 @@ for (p in PRED) {
     genes = paste(p$genes, collapse = "|"))
 }
 B <- do.call(rbind, BT)
-SEL <- do.call(rbind, SEL)
-write.table(B,   file.path(TAB, "53_brca_signature_tasks.tsv"), sep = "\t", quote = FALSE, row.names = FALSE)
-write.table(SEL, file.path(TAB, "53_selection_change.tsv"), sep = "\t", quote = FALSE, row.names = FALSE)
-say("  任务：", nrow(B), "；并列规则改变赢家：", sum(SEL$winner_changed),
-    "；改变 top-five 成员：", sum(SEL$top5_changed))
+write.table(B, file.path(TAB, "53_brca_signature_tasks.tsv"), sep = "\t", quote = FALSE, row.names = FALSE)
+say("  任务：", nrow(B), "（并列差异见 55c，本脚本不含旧规则）")
 
 ## 划分一致性：B 组与 A 组同 seed 的患者集合
 f19 <- file.path(PROJ, "results/main", sprintf("19_BRCA_%d_100.rds", SEEDS[1]))
@@ -284,7 +269,6 @@ for (i in seq_len(nrow(grp))) {
       grp$group[i], grp$n_task[i], grp$Ct_lasso[i], grp$d_argmax_ridge[i], grp$d_top5_ridge[i], grp$Gt[i]))
 }
 say("")
-say("  并列规则（旧 26b vs 现行 make_prio）：赢家改变 ", sum(SEL$winner_changed), "/", nrow(SEL),
-    "，top-five 改变 ", sum(SEL$top5_changed), "/", nrow(SEL))
+say("  并列规则差异见 55c（本脚本只使用 make_prio）")
 say("  基因集跨 seed 是否一致：", all(ov$genes_same_across_seeds))
 close(con)

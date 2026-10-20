@@ -243,6 +243,9 @@ chk("S2.11 说明宏观序保持、单队列方向改变",
     and "LUAD +0.0008" in _s2f and "LUAD was -0.0023" in _s2f)
 chk("S2.12 基因数范围为 11 到 99 且不称癌种差异",
     "from 11 to 99 genes" in _s2f and "cancer type" not in _s2f)
+_s53 = io.open(os.path.join(ROOT, "scripts", "53_same_signature_brca.R"), encoding="utf-8").read()
+chk("53 只使用 make_prio，旧并列规则已移出",
+    "make_prio(mods" in _s53 and "runif(" not in _s53)
 
 print("\n" + "=" * 52)
 print(f"通过 {len(passes)} 项，失败 {len(fails)} 项")
