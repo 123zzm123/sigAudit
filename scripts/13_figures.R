@@ -118,7 +118,7 @@ redraw("fig2_gain_decomposition", function() {
         side = 3, line = 0.2, adj = 0.02, col = INK2, cex = 0.72)
 }, w = 8.4, h = 5)
 CAPS <- c(CAPS,
-  "**Fig 2.** Decomposition of the reported gain for the validation-set argmax rule, per cohort and overall (equal weight over the eight cohorts; COAD is COADREAD). Blue = Gv (gain on the validation set); orange = Gt (gain on the held-out test set). Both are relative to the fixed Lasso reference. The grey connector joining the two points is the arithmetic difference Gv - Gt (i.e. Orel) and is **not** a confidence interval; no uncertainty is displayed in this panel (see Fig 3 for cross-split dispersion).", "")
+  "**Fig 2.** Decomposition of the reported gain for the validation-set argmax rule, per cohort and overall (equal weight over the eight cohorts; COAD is COADREAD). Blue = Gv (gain on the validation set); orange = Gt (gain on the held-out test set). Both are relative to the fixed Lasso reference. The grey connector joining the two points is the arithmetic difference Gv - Gt (i.e. Orel) and is **not** a confidence interval; no uncertainty is displayed in this panel (see Fig. S1 for cross-split dispersion).", "")
 
 ## ---------------- Fig 3：跨划分稳定性（单系列，不加图例）----------------
 bycs <- aggregate(Orel ~ cohort + seed, data = R, FUN = function(x) mean(x, na.rm = TRUE))
@@ -132,7 +132,7 @@ redraw("fig3_cross_split", function() {
   coh <- sort(unique(bycs$cohort))
   xl <- range(c(bycs$Orel, 0)) * 1.2
   plot(NA, xlim = xl, ylim = c(0.4, length(coh) + 0.6), axes = FALSE, xlab = "Orel per split",
-       ylab = "", main = "Fig 3  Cross-split stability of Orel (argmax on validation)")
+       ylab = "", main = "Fig. S1  Cross-split stability of Orel (argmax on validation)")
   abline(v = pretty(xl), col = GRID, lwd = 1)
   abline(v = 0, col = INK2, lwd = 1.5)
   axis(1, col.axis = INK2, col.lab = INK2); axis(2, at = seq_along(coh), labels = coh,
@@ -149,7 +149,7 @@ redraw("fig3_cross_split", function() {
         side = 3, line = 0.2, adj = 0.02, col = INK2, cex = 0.7)
 }, w = 7, h = 4.6)
 CAPS <- c(CAPS,
-  "**Fig 3.** Cross-split stability of Orel for the validation-set argmax rule. Each blue point is the Orel of one of the five analysis splits (same patients, different partitions); the black diamond is the cohort mean. The grey line spans the minimum to the maximum across the five splits: it is the **range across splits**, **not** a 95% confidence interval and **not** patient-sampling uncertainty.", "")
+  "**Fig. S1.** Cross-split stability of Orel for the validation-set argmax rule. Each blue point is the Orel of one of the five analysis splits (same patients, different partitions); the black diamond is the cohort mean. The grey line spans the minimum to the maximum across the five splits: it is the **range across splits**, **not** a 95% confidence interval and **not** patient-sampling uncertainty.", "")
 
 ## ---------------- Fig 4：规则配对比较 ----------------
 fp <- file.path(TAB, "20_paired_vs_argmax.tsv")
@@ -207,7 +207,7 @@ if (is.null(ag_impl) || !nrow(ag_impl)) {
     yy <- c(yI, yR)
     xl <- range(c(AG$lo, AG$hi, 0), na.rm = TRUE) * 1.15
     blank(xl, c(0.3, max(yy) + 0.7), "paired difference in held-out test C-index vs argmax_val",
-          "Fig 4  Does any implemented rule beat selecting the validation-best candidate?",
+          "Fig 3  Does any implemented rule beat selecting the validation-best candidate?",
           AG$lab, yy)
     abline(v = 0, col = INK2, lwd = 1.5)
     isI <- seq_len(nI)
@@ -228,7 +228,7 @@ if (is.null(ag_impl) || !nrow(ag_impl)) {
           side = 3, line = 0.2, adj = 0.02, col = INK2, cex = 0.72)
   }, w = 8.6, h = 5.6)
   CAPS <- c(CAPS,
-    "**Fig 4.** Paired difference in held-out test C-index between each rule and the validation-set argmax rule (unit of inference = cohort; bars are 95% CIs from an equal-weight t-interval over the eight cohorts). To the right of 0 the rule is better than argmax on the held-out test set. Rules in the upper block are implementable; the lower block is descriptive only — `oracle (test-set max)` is the post-hoc maximum on the test set and the `fixed Ridge` row is a post-hoc sensitivity comparison added after review (Ridge minus argmax). The circled point is the pre-specified comparison P2 (`top5 ensemble`).", "")
+    "**Fig 3.** Paired difference in held-out test C-index between each rule and the validation-set argmax rule (unit of inference = cohort; bars are 95% CIs from an equal-weight t-interval over the eight cohorts). To the right of 0 the rule is better than argmax on the held-out test set. Rules in the upper block are implementable; the lower block is descriptive only — `oracle (test-set max)` is the post-hoc maximum on the test set and the `fixed Ridge` row is a post-hoc sensitivity comparison added after review (Ridge minus argmax). The circled point is the pre-specified comparison P2 (`top5 ensemble`).", "")
 }
 
 writeLines(CAPS, CAP)
