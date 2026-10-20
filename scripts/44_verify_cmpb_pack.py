@@ -243,6 +243,22 @@ chk("S2.11 说明宏观序保持、单队列方向改变",
     and "LUAD +0.0008" in _s2f and "LUAD was -0.0023" in _s2f)
 chk("S2.12 基因数范围为 11 到 99 且不称癌种差异",
     "from 11 to 99 genes" in _s2f and "cancer type" not in _s2f)
+chk("S1.8 不把最大差异归因于最小队列",
+    "smallest cohort" not in _s1f and "one STAD split" in _s1f)
+chk("S1.8 验证案例计数为 7 个合成数据集 + 1 个真实任务",
+    "seven" in _s1f and "one real task" in _s1f and "eight synthetic" not in _s1f)
+chk("S1.8 tau 写作固定截断而非预注册",
+    "fixed truncation time" in _s1f and "pre-specified truncation" not in _s1f)
+chk("正文不再写两来源×两特征集",
+    "under both feature sets" not in _flat5
+    and "within tcga-brca, argmax remained below ridge with both feature-set" in _flat5.lower())
+chk("正文不把 METABRIC 写成方向反转",
+    "in METABRIC, their direction" not in _flat5
+    and "increased the positive METABRIC" in _flat5)
+chk("S2.11 不写 METABRIC 方向改变",
+    "in one cohort and in METABRIC" not in _s2f and "increasing the positive METABRIC margin" in _s2f)
+chk("S2.12 不写两来源×两特征集",
+    "under both feature sets" not in _s2f and "for these lists" in _s2f)
 _s53 = io.open(os.path.join(ROOT, "scripts", "53_same_signature_brca.R"), encoding="utf-8").read()
 chk("53 只使用 make_prio，旧并列规则已移出",
     "make_prio(mods" in _s53 and "runif(" not in _s53)
