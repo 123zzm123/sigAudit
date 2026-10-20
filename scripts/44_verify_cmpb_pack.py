@@ -125,7 +125,8 @@ chk("主表不再列 p，改指向补充表 S31",
     and bool(re.search(r"\| Comparison \| ΔCt vs reference \| 95% CI \|", short)))
 chk("新增两段补强分析与对应表号",
     "### 3.7 Two checks of the comparison layer" in short
-    and "Supplementary Table S34" in _flat5 and "Supplementary Tables S31 and S32" in _flat5)
+    and "Supplementary Table S34" in _flat5
+    and "Supplementary Results S2.11 and Table S33" in _flat5)
 chk("Uno 结果与同签名结果写入正文",
     "+0.0253" in short and "+0.0290" in short
     and ("-0.0093" in short or "−0.0093" in short) and "+0.0002" in short)
@@ -256,9 +257,18 @@ chk("正文不把 METABRIC 写成方向反转",
     "in METABRIC, their direction" not in _flat5
     and "increased the positive METABRIC" in _flat5)
 chk("S2.11 不写 METABRIC 方向改变",
-    "in one cohort and in METABRIC" not in _s2f and "increasing the positive METABRIC margin" in _s2f)
+    "in one cohort and in METABRIC" not in _s2f
+    and "increasing the positive METABRIC argmax-minus-ridge difference" in _s2f)
 chk("S2.12 不写两来源×两特征集",
     "under both feature sets" not in _s2f and "for these lists" in _s2f)
+chk("S2.11 不把联合变化单独归因于删失加权",
+    "Changing the metric and truncation changes" in _s2f and "Censoring weighting therefore" not in _s2f)
+_tp = io.open(os.path.join(CMPB, "01_title_page.md"), encoding="utf-8").read()
+chk("标题页补充表数量为 S1–S43",
+    "Supplementary Tables S1–S43" in _tp and "30 S-tables" not in _tp)
+chk("讨论写明 argmax 减 ridge 的方向与两种口径",
+    "argmax minus ridge: +0.0002 with untruncated" in _flat5
+    and "+0.0047 with 60-month Uno" in _flat5)
 _s53 = io.open(os.path.join(ROOT, "scripts", "53_same_signature_brca.R"), encoding="utf-8").read()
 chk("53 只使用 make_prio，旧并列规则已移出",
     "make_prio(mods" in _s53 and "runif(" not in _s53)
