@@ -96,6 +96,7 @@ TABLES = [
     "53_signature_gene_overlap.tsv", "53_selection_change.tsv", "53_split_identity.tsv",
     "54_uno_compact.tsv", "54_same_signature_compare.tsv",
     "55_uno_validation.tsv", "55_uno_cases.tsv", "55_uno_params.tsv", "55_uno_r_values.tsv",
+    "55_tie_conventions.tsv",
     "49_audit_api_check.tsv", "49_audit_api_reference_switch.tsv",
     "49_audit_api_dedup.tsv",
 ]

@@ -1,0 +1,10 @@
+dataset	n	convention	C	n_pairs	note
+event_vs_censor_same_time	2	strict (this analysis)	NA	0	T_i < T_j only; tied event times and event-censor ties excluded; tied scores 0.5
+event_vs_censor_same_time	2	survival::concordance (timewt = n)	1.000000	1	event-censor ties kept (censored considered later); tied outcomes dropped; tied scores 0.5
+event_vs_censor_same_time	2	textbook variant (not used)	NA	0	tied event times credited 0.5; shown only to separate the conventions
+two_events_same_time	2	strict (this analysis)	NA	0	T_i < T_j only; tied event times and event-censor ties excluded; tied scores 0.5
+two_events_same_time	2	survival::concordance (timewt = n)	NA	0	event-censor ties kept (censored considered later); tied outcomes dropped; tied scores 0.5
+two_events_same_time	2	textbook variant (not used)	0.500000	1	tied event times credited 0.5; shown only to separate the conventions
+mixed_seven_observations	7	strict (this analysis)	1.000000	11	T_i < T_j only; tied event times and event-censor ties excluded; tied scores 0.5
+mixed_seven_observations	7	survival::concordance (timewt = n)	1.000000	14	event-censor ties kept (censored considered later); tied outcomes dropped; tied scores 0.5
+mixed_seven_observations	7	textbook variant (not used)	0.958333	12	tied event times credited 0.5; shown only to separate the conventions

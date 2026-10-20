@@ -364,6 +364,7 @@ TABMAP = {
     "results/tables/53_selection_change.tsv":                  "same_signature_selection_change.tsv",
     "results/tables/53_split_identity.tsv":                    "same_signature_split_identity.tsv",
     "results/tables/53_signature_gene_overlap.tsv":            "same_signature_gene_overlap.tsv",
+    "results/tables/55_tie_conventions.tsv":                   "tie_conventions.tsv",
 }
 SUPT = os.path.join(SUPOUT, "tables")
 os.makedirs(SUPT, exist_ok=True)

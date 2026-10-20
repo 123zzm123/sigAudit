@@ -205,15 +205,15 @@ for _f, _n in [("fixed_reference_paired.tsv", 45), ("uno_sensitivity.tsv", 9),
                ("uno_validation_cases.tsv", 2611),
                ("same_signature_selection_change.tsv", 30),
                ("same_signature_split_identity.tsv", 5),
-               ("same_signature_gene_overlap.tsv", 6)]:
+               ("same_signature_gene_overlap.tsv", 6), ("tie_conventions.tsv", 9)]:
     _p = os.path.join(_suptab, _f)
     _rows = 0
     if os.path.exists(_p):
         with io.open(_p, encoding="utf-8") as _fh:
             _rows = sum(1 for _l in _fh if _l.strip()) - 1
     chk(f"补充表 {_f} 存在且行数为 {_n}", _rows == _n, str(_rows))
-chk("补充目录写四十二张表",
-    "Forty-two tables" in io.open(os.path.join(_supdir, "00_contents.md"), encoding="utf-8").read())
+chk("补充目录写四十三张表",
+    "Forty-three tables" in io.open(os.path.join(_supdir, "00_contents.md"), encoding="utf-8").read())
 _s1 = io.open(os.path.join(_supdir, "S1_methods.md"), encoding="utf-8").read()
 _s2 = io.open(os.path.join(_supdir, "S2_results.md"), encoding="utf-8").read()
 chk("补充方法含 S1.8 与 S1.9",
@@ -227,6 +227,10 @@ chk("S1.8 写明按队列×划分的支持规则与层级汇总",
     "cohort-by-split level" in _s1f and "tasks, then splits within a cohort, then cohorts" in _s1f)
 chk("S1.8 区分同定义核对与删失来源差异",
     "same definition" in _s1f and "not the same definition" in _s1f and "1.5e-14" in _s1f)
+chk("S1.8 分列三类并列、不再写成同一 0.5 规则",
+    "Three kinds are handled separately" in _s1f
+    and "Tied risk scores contribute 0.5 in both" in _s1f
+    and "Harrell's C instead counts a tied event time" not in _s1f)
 chk("S1.9 写明划分一致性、并列规则与验证集常数定义",
     "Split identity" in _s1f and "Tie-breaking" in _s1f and "validation predictions are" in _s1f)
 _s2f = re.sub(r"\s+", " ", _s2)
