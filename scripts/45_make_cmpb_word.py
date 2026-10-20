@@ -161,6 +161,17 @@ def render_md(doc, md):
             para(doc, s[4:].strip(), align="left", size=12, bold=True, space_after=4, keep=True)
             i += 1
             continue
+        if re.match(r"^[-*]\s+", s):
+            # 真项目符号：每条独立段落，避免 Markdown 列表被并成一个段落
+            while i < len(md) and re.match(r"^[-*]\s+", md[i].strip()):
+                txt = re.sub(r"^[-*]\s+", "", md[i].strip())
+                p = doc.add_paragraph(style="List Bullet")
+                p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+                p.paragraph_format.space_after = Pt(4)
+                p.paragraph_format.line_spacing = 1.15
+                add_inline(p, txt, size=12)
+                i += 1
+            continue
         if s.startswith("```"):
             code = []
             i += 1
