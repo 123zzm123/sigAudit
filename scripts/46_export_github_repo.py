@@ -87,6 +87,13 @@ TABLES = [
     "50_search_budget_summary.tsv", "50_search_budget_os6.tsv",
     "50_search_budget_metabric.tsv", "50_search_budget_metabric_task.tsv",
     "50_search_budget_check.tsv",
+    "29_paired_vs_fixed.tsv",
+    "52_uno_task.tsv", "52_uno_by_cohort.tsv", "52_uno_summary.tsv",
+    "52_uno_support.tsv", "52_uno_check.tsv",
+    "53_brca_signature_tasks.tsv", "53_same_signature_groups.tsv",
+    "53_same_signature_by_signature.tsv", "53_same_signature_tasks_all.tsv",
+    "53_signature_gene_overlap.tsv",
+    "54_uno_compact.tsv", "54_same_signature_compare.tsv",
     "49_audit_api_check.tsv", "49_audit_api_reference_switch.tsv",
     "49_audit_api_dedup.tsv",
 ]
@@ -260,6 +267,9 @@ io.open(os.path.join(OUT, "results", "README.md"), "w", encoding="utf-8", newlin
   - `48_*` — validation-prediction duplicate-collapse sensitivity
   - `49_*` — prediction-level interface consistency check and reference switch
   - `50_*` — reference-anchored search-budget curves (expected Cv/Ct by pool size K)
+  - `52_*` — censoring-weighted (Uno/IPCW) concordance at a fixed five-year horizon
+  - `53_*` — signature-matched comparison (TCGA-BRCA and METABRIC, same six signatures)
+  - `54_*` — compact summary tables assembled from the above without recomputation
   - `31_*`, `32_*`, `36_*` — METABRIC metrics, sensitivity and re-verification
 - `manifest/` — candidate-pool diversity tables.
 

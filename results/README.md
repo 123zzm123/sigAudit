@@ -20,6 +20,9 @@
   - `48_*` — validation-prediction duplicate-collapse sensitivity
   - `49_*` — prediction-level interface consistency check and reference switch
   - `50_*` — reference-anchored search-budget curves (expected Cv/Ct by pool size K)
+  - `52_*` — censoring-weighted (Uno/IPCW) concordance at a fixed five-year horizon
+  - `53_*` — signature-matched comparison (TCGA-BRCA and METABRIC, same six signatures)
+  - `54_*` — compact summary tables assembled from the above without recomputation
   - `31_*`, `32_*`, `36_*` — METABRIC metrics, sensitivity and re-verification
 - `manifest/` — candidate-pool diversity tables.
 

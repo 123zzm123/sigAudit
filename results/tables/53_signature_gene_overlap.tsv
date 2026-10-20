@@ -1,0 +1,7 @@
+signature	n_source	n_tcga_brca	n_metabric	n_shared
+EndoPredict_11	11	11	11	11
+GENE70_MammaPrint	51	48	51	48
+GENE76_Rotterdam	60	58	60	58
+GGI	99	99	99	99
+OncotypeDX_21	21	21	21	21
+PAM50	50	49	50	49

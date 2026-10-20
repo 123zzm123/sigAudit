@@ -80,7 +80,7 @@ redraw("fig1_design", function() {
        adj = 0, col = INK2, cex = 0.72)
 })
 CAPS <- c(CAPS,
-  "**Fig 1.** Design of the audit. Each of eight TCGA cohorts is split into train (50%), validation (25%) and a held-out test set (25%); block widths are drawn in proportion to these fractions. The selection rule picks the candidate with the highest validation C-index from the whole pool, with the reference (fixed Lasso) allowed to participate. Gv and Gt are the selection's gains in C-index over the reference on the validation and held-out test sets respectively, and Orel = Gv - Gt is the reference-adjusted selection optimism. Ct is an estimate on a held-out set, not a known truth; the seeds were fixed before the revised run rather than publicly pre-registered.", "")
+  "**Fig 1.** Design of the audit. Each of eight TCGA cohorts is split into train (50%), validation (25%) and a held-out test set (25%); block widths are drawn in proportion to these fractions. The selection rule picks the candidate with the highest validation C-index from the whole pool, with the reference (fixed Lasso) allowed to participate. Gv and Gt are the selection's gains in C-index over the reference on the validation and held-out test sets respectively, and Orel = Gv - Gt is the reference-adjusted selection optimism. Ct is an estimate on a held-out set, not a known truth; the seeds were fixed before the revised run rather than publicly pre-registered. A schematic arithmetic example, not a summary of the present estimates: if Gv = 0.06 and Gt = 0.02, then Orel = 0.04 and about 67% of the apparent gain did not persist.", "")
 
 ## ---------------- 读入 ----------------
 fr <- file.path(TAB, "20_rules.tsv")
@@ -114,11 +114,11 @@ redraw("fig2_gain_decomposition", function() {
   abline(h = nrow(byc) + 0.7, col = GRID, lwd = 1, lty = 2)
   legend("bottomright", c("Gv (validation)", "Gt (held-out test)"), pch = 16, pt.cex = 1.4,
          col = c(C_GV, C_GT), bty = "n", text.col = INK, cex = 0.85)
-  mtext("grey connector = the difference Gv - Gt (Orel); it is NOT a confidence interval",
+  mtext("grey connector = gap Gv - Gt (Orel); it is NOT a confidence interval",
         side = 3, line = 0.2, adj = 0.02, col = INK2, cex = 0.72)
 }, w = 8.4, h = 5)
 CAPS <- c(CAPS,
-  "**Fig 2.** Decomposition of the reported gain for the validation-set argmax rule, per cohort and overall (equal weight over the eight cohorts; COAD is COADREAD). Blue = Gv (gain on the validation set); orange = Gt (gain on the held-out test set). Both are relative to the fixed Lasso reference. The grey connector joining the two points is the arithmetic difference Gv - Gt (i.e. Orel) and is **not** a confidence interval; no uncertainty is displayed in this panel (see Fig. S1 for cross-split dispersion).", "")
+  "**Fig 2.** Decomposition of the reported gain for the validation-set argmax rule, per cohort and overall (equal weight over the eight cohorts; COAD is COADREAD). Blue = Gv (gain on the validation set); orange = Gt (gain on the held-out test set). Both are relative to the fixed Lasso reference. The grey connector joining the two points is the gap Gv - Gt (i.e. Orel) and is **not** a confidence interval; no uncertainty is displayed in this panel (see Fig. S1 for cross-split dispersion).", "")
 
 ## ---------------- Fig 3：跨划分稳定性（单系列，不加图例）----------------
 bycs <- aggregate(Orel ~ cohort + seed, data = R, FUN = function(x) mean(x, na.rm = TRUE))

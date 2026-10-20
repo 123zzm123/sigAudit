@@ -180,7 +180,10 @@ the procedure can be reused on other omics endpoints.
 post-hoc comparator analysis, a single fixed ridge regression matched or exceeded validation-set
 selection in all eight cohorts, while the pre-specified top-five ensemble remained below it on
 average. The pattern persisted in diagnostic analyses restricted to tasks where the LASSO
-reference was not degenerate and after exactly duplicated candidates were removed. Post-hoc
+reference was not degenerate and after exactly duplicated candidates were removed. Two further
+checks were added in revision: matching the feature set across sources, with the same six
+signatures in TCGA-BRCA and METABRIC, left the TCGA margin unchanged, and a censoring-weighted
+concordance at five years kept the same ordering of comparators. Post-hoc
 search-budget curves showed that, in TCGA, expanding the candidate pool increased validation gains
 while held-out gains plateaued from a fixed LASSO start and became increasingly negative from a
 fixed ridge start. In METABRIC, ridge-anchored held-out gains remained near zero. The independent
@@ -349,6 +352,11 @@ TABMAP = {
     "results/tables/50_search_budget_metabric.tsv":            "search_budget_metabric.tsv",
     "results/tables/50_search_budget_metabric_task.tsv":       "search_budget_metabric_task.tsv",
     "results/tables/50_search_budget_check.tsv":               "search_budget_check.tsv",
+    "results/tables/29_paired_vs_fixed.tsv":                   "fixed_reference_paired.tsv",
+    "results/tables/54_uno_compact.tsv":                       "uno_sensitivity.tsv",
+    "results/tables/52_uno_task.tsv":                          "uno_task.tsv",
+    "results/tables/54_same_signature_compare.tsv":            "same_signature_compare.tsv",
+    "results/tables/53_same_signature_tasks_all.tsv":          "same_signature_tasks.tsv",
 }
 SUPT = os.path.join(SUPOUT, "tables")
 os.makedirs(SUPT, exist_ok=True)

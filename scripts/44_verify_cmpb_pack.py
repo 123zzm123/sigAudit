@@ -114,9 +114,24 @@ chk("关键结果值齐全", not missing, str(missing))
 chk("Ridge 的 Orel 为 0.0377（非 0.0378）",
     "0.0374–0.0378" in short
     and "| fixed ridge | +0.0314 | −0.0064 | +0.0377 |" in short)
-chk("去重百分比按任务计数（68 / 699）",
-    "in 68 of 3,919 tasks (1.7%)" in short
-    and "changed in 699 of 3,919 tasks (17.8%)" in short)
+_flat5 = re.sub(r"\s+", " ", short)
+chk("去重百分比按任务计数（1.7% / 17.8%）",
+    "changed the validation-selected winner in 1.7% of tasks" in _flat5
+    and "top-five membership changed in 17.8% of tasks" in _flat5)
+chk("方法写明 λ.min 与训练内调参",
+    "cv.glmnet" in short and "λ.min" in short and "No penalty was tuned on validation or test data" in _flat5)
+chk("主表不再列 p，改指向补充表 S31",
+    "listed in Supplementary Table S31" in _flat5
+    and bool(re.search(r"\| Comparison \| ΔCt vs reference \| 95% CI \|", short)))
+chk("新增两段补强分析与对应表号",
+    "### 3.7 Two checks of the comparison layer" in short
+    and "Supplementary Table S34" in _flat5 and "Supplementary Table S32" in _flat5)
+chk("Uno 结果与同签名结果写入正文",
+    "+0.0253" in short and "+0.0291" in short and "−0.0093" in short and "+0.0002" in short)
+chk("近零不等于等效的表述",
+    "are near zero and do not establish equivalence" in _flat5)
+chk("常数预测表述改为全零系数",
+    "coefficients were all zero" in _flat5 and "intercept-only" not in short)
 chk("表 2 含舍入说明",
     "Values were calculated from the full-precision results before rounding" in short)
 
@@ -136,7 +151,8 @@ chk("含搜索规模曲线一节与 Fig. 5",
     "### 3.5 Gains keep rising on validation" in short and "**Fig. 5**" in short
     and "**Fig. 5. Reference-anchored search-budget curves.**" in short)
 chk("含实时软件示例与 BBC-CV 相关工作",
-    "A packaged real-data example audits a stored METABRIC task" in short
+    "A packaged example audits a stored" in short
+    and "METABRIC task (18 candidates, 989 patients)" in short
     and "Bootstrapping the out-of-sample predictions" in short)
 print("=== 8. 文字卫生 ===")
 _flat = re.sub(r"\s+", " ", short)
@@ -145,14 +161,14 @@ chk("摘要写出 TCGA 搜索规模模式与 METABRIC 近零",
     "expanding the candidate pool increased validation gains" in _flat
     and "ridge-anchored gains remained near zero" in _flat)
 chk("引言把搜索规模问题写入研究目的",
-    "how that gain changes as the candidate pool expands" in _flat
-    and "reference-anchored search budgets" in _flat)
+    "how it changes as the pool expands" in _flat
+    and "reference-anchored search budgets" in _flat and "search budgets" in _flat)
 chk("§3.5 措辞为 evaluated K greater than one",
     "at every evaluated K greater than one" in _flat)
 chk("§3.5 METABRIC 段写明小而非零、签名间不均一",
     "ridge-anchored gains" in _flat and "not uniform across signatures" in _flat)
 chk("Discussion 的 Ridge 结论限定在 TCGA 与 K>1",
-    "in TCGA the expected held-out performance remained below the fixed ridge start at every evaluated" in _flat)
+    "in TCGA the expected held-out performance stayed below the fixed ridge start at every evaluated" in _flat)
 chk("Highlights 含 TCGA 搜索规模一条",
     "In TCGA, expanding ridge-anchored search raises validation gains" in _hlflat)
 chk("正文引用 Supplementary Figs. S2–S5", "Supplementary Figs. S2–S5" in _flat)
@@ -177,6 +193,30 @@ chk("投稿信含四要素", all(k in cl for k in
     ["What is known", "What the study asks", "What we did", "has not been published elsewhere"]))
 chk("投稿信面向 CMPB", "Computer Methods and Programs in Biomedicine" in cl)
 chk("无内部文件引用", "refs_editor_note" not in man)
+
+print("=== 9. 补强分析的表与补充章节 ===")
+_supdir = os.path.join(CMPB, "06_supplementary")
+_suptab = os.path.join(_supdir, "tables")
+for _f, _n in [("fixed_reference_paired.tsv", 45), ("uno_sensitivity.tsv", 9),
+               ("uno_task.tsv", 2977), ("same_signature_compare.tsv", 15),
+               ("same_signature_tasks.tsv", 555)]:
+    _p = os.path.join(_suptab, _f)
+    _rows = 0
+    if os.path.exists(_p):
+        with io.open(_p, encoding="utf-8") as _fh:
+            _rows = sum(1 for _l in _fh if _l.strip()) - 1
+    chk(f"补充表 {_f} 存在且行数为 {_n}", _rows == _n, str(_rows))
+chk("补充目录写三十五张表",
+    "Thirty-five tables" in io.open(os.path.join(_supdir, "00_contents.md"), encoding="utf-8").read())
+_s1 = io.open(os.path.join(_supdir, "S1_methods.md"), encoding="utf-8").read()
+_s2 = io.open(os.path.join(_supdir, "S2_results.md"), encoding="utf-8").read()
+chk("补充方法含 S1.8 与 S1.9",
+    "## S1.8 Censoring-weighted concordance" in _s1 and "## S1.9 Signature-matched comparison" in _s1)
+chk("补充结果含 S2.11 与 S2.12",
+    "## S2.11 Censoring-weighted concordance" in _s2 and "## S2.12 Signature-matched comparison" in _s2)
+_s1f = re.sub(r"\s+", " ", _s1)
+chk("补充方法写明 tau 与训练侧删失分布",
+    "tau = 60 months" in _s1f and "training partition" in _s1f and "G_train(tau) >= 0.05" in _s1f)
 
 print("\n" + "=" * 52)
 print(f"通过 {len(passes)} 项，失败 {len(fails)} 项")
