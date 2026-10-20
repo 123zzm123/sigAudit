@@ -61,7 +61,7 @@ rows = []
 for coh in OS + ["METABRIC"]:
     r = by[coh]
     s = [x for x in sup if x["cohort"] == coh]
-    out = {"scope": coh, "n_seeds": len(s), "n_tasks": r["n_task"],
+    out = {"scope": coh, "n_units": len(s), "n_tasks": r["n_task"],
            "n_test": rng(s, "n_test", "%d"), "events_before_tau": rng(s, "ev_test_before_tau", "%d"),
            "censoring": rng(s, "cens_test", "%.3f"), "G_train_60": rng(s, "G_train_tau", "%.3f"),
            "tau_months": 60}
@@ -71,13 +71,13 @@ for coh in OS + ["METABRIC"]:
 
 for key in ("6 OS cohorts (macro)", "METABRIC (macro)"):
     r = summ[key]
-    out = {"scope": key, "n_seeds": "", "n_tasks": r["n_task"], "n_test": "", "events_before_tau": "",
+    out = {"scope": key, "n_units": "", "n_tasks": r["n_task"], "n_test": "", "events_before_tau": "",
            "censoring": "", "G_train_60": "", "tau_months": 60}
     for c in cols:
         out[c] = ("%+.4f" % f(r[c])) if f(r[c]) is not None else ""
     rows.append(out)
 
-fields = ["scope", "tau_months", "n_seeds", "n_tasks", "n_test", "events_before_tau", "censoring",
+fields = ["scope", "tau_months", "n_units", "n_tasks", "n_test", "events_before_tau", "censoring",
           "G_train_60"] + cols
 with io.open(os.path.join(TAB, "54_uno_compact.tsv"), "w", encoding="utf-8", newline="\n") as fh:
     w = csv.DictWriter(fh, fieldnames=fields, delimiter="\t", lineterminator="\n")

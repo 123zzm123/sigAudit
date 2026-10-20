@@ -1,4 +1,4 @@
-scope	tau_months	n_seeds	n_tasks	n_test	events_before_tau	censoring	G_train_60	d_uno_argmax_lasso	d_uno_top5_lasso	d_uno_argmax_ridge	d_uno_top5_ridge	d_uno_argmax_enet	d_har_argmax_lasso	d_har_argmax_ridge	d_har60_argmax_lasso
+scope	tau_months	n_units	n_tasks	n_test	events_before_tau	censoring	G_train_60	d_uno_argmax_lasso	d_uno_top5_lasso	d_uno_argmax_ridge	d_uno_top5_ridge	d_uno_argmax_enet	d_har_argmax_lasso	d_har_argmax_ridge	d_har60_argmax_lasso
 BRCA	60	5	495	268	22–26	0.858	0.265–0.307	+0.0293	+0.0378	-0.0079	+0.0006	+0.0234	+0.0431	-0.0075	+0.0468
 COAD	60	5	495	142	27–28	0.796	0.112–0.161	+0.0437	+0.0529	-0.0088	+0.0005	+0.0407	+0.0399	-0.0145	+0.0399
 KIRC	60	5	472	127	33–38	0.669	0.432–0.478	+0.0168	+0.0207	-0.0072	-0.0033	+0.0104	+0.0165	-0.0072	+0.0162
